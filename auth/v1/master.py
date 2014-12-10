@@ -7,7 +7,7 @@ from web.error import ErrNo, ErrorPage, SuccessPage
 from ..globals import master
 
 
-class AuthProxy(resource.Resource):
+class Master(resource.Resource):
     version = 1
 
     def __init__(self):

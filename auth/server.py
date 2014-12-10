@@ -18,7 +18,7 @@ class AuthDispatch(resource.Resource):
         else:
             try:
                 mo = importlib.import_module('auth.%s.master' % version)
-                return mo.authProxy()
+                return mo.Master()
             except Exception:
                 return ErrorPage(ErrNo.INVALID_PARAMETER)
 
