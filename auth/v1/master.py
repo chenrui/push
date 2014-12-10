@@ -4,13 +4,14 @@
 import json
 from twisted.web import resource
 from web.error import ErrNo, ErrorPage, SuccessPage
+from ..globals import master
 
 
-class Authent(resource.Resource):
+class AuthProxy(resource.Resource):
+    version = 1
 
-    def __init__(self, root):
+    def __init__(self):
         resource.Resource.__init__(self)
-        self.root = root
 
     def getChild(self, path, request):
         if path == 'auth':
@@ -22,3 +23,6 @@ class Authent(resource.Resource):
         data = request.content.getvalue()
         data = json.loads(data)
         return SuccessPage()
+
+    def handler(self):
+        master.callNode()

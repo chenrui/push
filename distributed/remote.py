@@ -41,5 +41,6 @@ class RemoteObject(object):
         deferedRemote.addCallback(callRemote, 'takeProxy', self._name, self._reference)
 
     def callRemote(self, commandId, *args, **kw):
+        '''回调root的接口'''
         deferedRemote = self._factory.getRootObject()
         return deferedRemote.addCallback(callRemote, 'callTarget', commandId, *args, **kw)

@@ -13,17 +13,13 @@ from auth.client import AuthClient
 class TPDispatch(resource.Resource):
     '''Third party gateway dispatcher'''
 
-    def __init__(self, authClint):
-        resource.Resource.__init__(self)
-        self.authClint = authClint
-
     def getChild(self, version, request):
         if version == '':
             return self
         else:
             try:
                 mo = importlib.import_module('tp_gateway.%s.gateway' % version)
-                return mo.TPGateWay(self.authClint)
+                return mo.TPGateWay(AuthClient)
             except Exception:
                 return ErrorPage(ErrNo.INVALID_PARAMETER)
 
@@ -36,15 +32,11 @@ class TPServer(object):
 
     def __init__(self, config=None):
         self.config = config
-        self.authClint = None
         self.webSrv = None
 
     def config_web_service(self):
         self.webSrv = vhost.NameVirtualHost()
-        self.webSrv.addHost('0.0.0.0', TPDispatch(self.authClint))
-
-    def config_auth_client(self):
-        self.authClint = AuthClient()
+        self.webSrv.addHost('0.0.0.0', TPDispatch())
 
     def _do_start(self):
         self.config_auth_client()
