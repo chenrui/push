@@ -9,8 +9,8 @@ SUCCESS = 1
 
 
 class AuthClient(object):
-    def __init__(self, version):
-        self.url = 'http://0.0.0.0:8888/v%d/auth' % version
+    def __init__(self):
+        self.url = 'http://0.0.0.0:8888/auth'
         self.headers = {'content-type': 'application/json'}
 
     def verifyReq(self, auth):

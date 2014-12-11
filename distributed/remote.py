@@ -36,6 +36,9 @@ class RemoteObject(object):
     def addServiceChannel(self, service):
         self._reference.addService(service)
 
+    def disconnectCallback(self, callback):
+        self._factory.stopFactory = callback
+
     def takeProxy(self):
         deferedRemote = self._factory.getRootObject()
         deferedRemote.addCallback(callRemote, 'takeProxy', self._name, self._reference)

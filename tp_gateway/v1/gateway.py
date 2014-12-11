@@ -13,9 +13,9 @@ class TPGateWay(resource.Resource):
     '''Third party gateway'''
     version = 1
 
-    def __init__(self, authClntKlass):
+    def __init__(self, authClnt):
         resource.Resource.__init__(self)
-        self.authClnt = authClntKlass(self.version)
+        self.authClnt = authClnt
 
     def getChild(self, path, request):
         if path == 'push':

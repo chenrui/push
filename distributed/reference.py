@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from twisted.spread import pb
-from firefly.utils.services import Service
+from utils.service import Service
 
 
 class ProxyReference(pb.Referenceable):

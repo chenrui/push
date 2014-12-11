@@ -1,35 +1,44 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import importlib
+import json
 from twisted.web import vhost, resource
 from twisted.internet import reactor
 from web.request import DelaySite
-from web.error import ErrNo, ErrorPage
-from web.utils import service
+from web.error import ErrNo, ErrorPage, SuccessPage
+from utils import service
+from utils.logger import log
+from distributed.root import BilateralFactory
 from .globals import root
 
 
-class AuthDispatch(resource.Resource):
+class AuthMaster(resource.Resource):
 
-    def getChild(self, version, request):
-        if version == '':
+    def __init__(self):
+        resource.Resource.__init__(self)
+
+    def getChild(self, path, request):
+        if path == 'auth':
             return self
         else:
-            try:
-                mo = importlib.import_module('auth.%s.master' % version)
-                return mo.Master()
-            except Exception:
-                return ErrorPage(ErrNo.INVALID_PARAMETER)
+            return ErrorPage(ErrNo.NO_RESOURCE)
 
-    def render(self, request):
-        return ErrorPage(ErrNo.LESS_PARAMETER)
+    def render_POST(self, request):
+        data = request.content.getvalue()
+        self.handler(json.loads(data))
+        return SuccessPage()
+
+    def handler(self, data):
+        ret = root.callNode('test', 'printOK', data)
+        ret.addCallback(lambda ret: log.msg('xxxxxx %s' % ret))
 
 
 class AuthServer(object):
-    def __init__(self, config=None):
-        self.config = config
+    def __init__(self, addr, port, root_port):
         self.webSrv = None
+        self.addr = addr
+        self.port = port
+        self.root_port = root_port
 
     def masterapp(self):
         rootservice = service.Service("rootservice")
@@ -37,10 +46,11 @@ class AuthServer(object):
         root.doNodeConnect = _doChildConnect
         root.doNodeLostConnect = _doChildLostConnect
         self.webSrv = vhost.NameVirtualHost()
-        self.webSrv.addHost('0.0.0.0', AuthDispatch())
+        self.webSrv.addHost(self.addr, AuthMaster())
 
     def start(self):
-        reactor.listenTCP(8888, DelaySite(self.webSrv))
+        reactor.listenTCP(self.root_port, BilateralFactory(root))
+        reactor.listenTCP(self.port, DelaySite(self.webSrv))
         reactor.run()
 
 

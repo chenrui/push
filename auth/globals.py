@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from utils.root import PBRoot
+from distributed.root import PBRoot
 
 root = PBRoot()
