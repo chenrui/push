@@ -6,6 +6,7 @@ from distributed.remote import RemoteObject
 from utils import service
 from utils.logger import log
 
+SUCCESS = 1
 service = service.Service('reference', service.Service.SINGLE_STYLE)
 
 
@@ -14,13 +15,13 @@ def serviceHandle(target):
 
 
 @serviceHandle
-def printOK(data):
+def authorizeHeader(authString):
     log.msg("############################")
-    log.msg(data)
-    return "call printOK_01"
+    log.msg(authString)
+    return SUCCESS
 
 
-def errback():
+def disconnected():
     log.msg('xxxxxxxxxxxxxxxxxxxxxxx')
     reactor.stop()
 
@@ -32,7 +33,7 @@ class AuthNode(object):
 
     def connect(self, addr):
         self.remote.connect(addr)
-        self.remote.disconnectCallback(errback)
+        self.remote.disconnectCallback(disconnected)
 
     def start(self):
         reactor.run()

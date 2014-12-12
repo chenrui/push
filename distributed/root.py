@@ -77,10 +77,10 @@ class PBRoot(pb.Root):
         """
         pass
 
-    def callNode(self, nodeID, *args, **kw):
+    def callNode(self, *args, **kw):
         '''调用子节点的接口
         '''
-        return self.nodesmanager.callNode(nodeID, *args, **kw)
+        return self.nodesmanager.callNode(*args, **kw)
 
     def callNodeByName(self, nodeName, *args, **kw):
         '''调用子节点的接口

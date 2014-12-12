@@ -28,18 +28,18 @@ class TPGateWay(resource.Resource):
         if not data:
             return ErrorPage(ErrNo.INVALID_PARAMETER)
         # id verify
-        ret = self.verifyReq(request)
+        ret = self.verifyHeader(request)
         log.msg("xxxxxx %d" % ret)
         if ret != SUCCESS:
             return ErrorPage(ErrNo.UNAUTHORIZED)
         else:
             return SuccessPage()
 
-    def verifyReq(self, request):
+    def verifyHeader(self, request):
         auth = request.getHeader(b"Authorization")
         if auth is None:
             return ErrNo.UNAUTHORIZED
-        return self.authClnt.verifyReq(auth)
+        return self.authClnt.verifyHeader(auth)
 
     def getReqdata(self, request):
         try:

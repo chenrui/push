@@ -21,13 +21,16 @@ class DelayRequest(Request):
         if body == NOT_DONE_YET:
             return
         if isinstance(body, defer.Deferred):
-            body.addCallback(self._deferwrite)
+            body.addCallback(self._write)
         elif isinstance(body, ErrorPage) or isinstance(body, SuccessPage):
             self._write(body.render(self))
         else:
             self._write(body)
 
     def _write(self, body):
+        if isinstance(body, ErrorPage) or isinstance(body, SuccessPage):
+            self._write(body.render(self))
+            return
         data = json.dumps(body)
         self.setHeader(b"content-type", b"application/json")
         self.setHeader('content-length', len(data))

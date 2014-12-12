@@ -32,7 +32,19 @@ class NodesManager(object):
         if nodeID in self._nodes:
             del self._nodes[nodeID]
 
-    def callNode(self, nodeID, *args, **kwargs):
+    def loadBalance(self):
+        for node in self._nodes.values():
+            return node
+        return None
+
+    def callNode(self, *args, **kwargs):
+        node = self.loadBalance()
+        if not node:
+            log.err("node doesn't exists")
+            return
+        return node.callbackNode(*args, **kwargs)
+
+    def callNodeByID(self, nodeID, *args, **kwargs):
         node = self._nodes.get(nodeID, None)
         if not node:
             log.err("nodeID %s doesn't exists" % nodeID)

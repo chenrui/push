@@ -11,26 +11,30 @@ from utils.logger import log
 from distributed.root import BilateralFactory
 from .globals import root
 
+SUCCESS = 1
 
 class AuthMaster(resource.Resource):
 
-    def __init__(self):
+    def __init__(self, method=None):
+        self.method = method
         resource.Resource.__init__(self)
 
     def getChild(self, path, request):
         if path == 'auth':
-            return self
+            self.putChild('checkheader', AuthMaster('checkheader'))
+            return resource.getChildForRequest(self, request)
         else:
             return ErrorPage(ErrNo.NO_RESOURCE)
 
     def render_POST(self, request):
         data = request.content.getvalue()
-        self.handler(json.loads(data))
-        return SuccessPage()
+        return self.handler(json.loads(data))
 
     def handler(self, data):
-        ret = root.callNode('test', 'printOK', data)
-        ret.addCallback(lambda ret: log.msg('xxxxxx %s' % ret))
+        if self.method == 'checkheader':
+            defer = root.callNode('authorizeHeader', data['Authorization'])
+            defer.addCallback(lambda ret: SuccessPage() if ret == SUCCESS else ErrorPage(ErrNo.UNAUTHORIZED))
+            return defer
 
 
 class AuthServer(object):

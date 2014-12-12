@@ -10,11 +10,11 @@ SUCCESS = 1
 
 class AuthClient(object):
     def __init__(self):
-        self.url = 'http://0.0.0.0:8888/auth'
+        self.url = 'http://0.0.0.0:8888/auth/checkheader'
         self.headers = {'content-type': 'application/json'}
 
-    def verifyReq(self, auth):
-        payload = {'auth': auth}
+    def verifyHeader(self, auth):
+        payload = {'Authorization': auth}
         r = requests.post(self.url, data=json.dumps(payload), headers=self.headers)
         if r.status_code == 200:
             return SUCCESS
