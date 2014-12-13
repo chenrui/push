@@ -5,6 +5,7 @@ from twisted.internet import reactor
 from distributed.remote import RemoteObject
 from utils import service
 from utils.logger import log
+from utils.db import db
 
 SUCCESS = 1
 service = service.Service('reference', service.Service.SINGLE_STYLE)
@@ -36,4 +37,5 @@ class AuthNode(object):
         self.remote.disconnectCallback(disconnected)
 
     def start(self):
+        db.bind('mysql', host='127.0.0.1', user='root', passwd='root', db='push')
         reactor.run()
