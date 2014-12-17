@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import base64
+import hashlib
 import uuid
 from twisted.internet import reactor
 from distributed.remote import RemoteObject
@@ -9,7 +9,7 @@ from pony.orm import db_session
 from utils import service
 from utils.logger import log
 from utils.db import db
-from .models import Application, Profile
+from .models import Application, Profile, Device
 from .globals import RetNo
 
 service = service.Service('reference', service.Service.SINGLE_STYLE)
@@ -20,13 +20,17 @@ def serviceHandle(target):
 
 
 @serviceHandle
-def authorizeHeader(authString):
-    app_key, mast_secret = base64.b64decode(authString).split(':')
+def authorizeMessage(app_key, hash_code, verify_str):
     with db_session:
-        app = Application.get(app_key=app_key, mast_secret=mast_secret)
-        if app:
-            return app.to_dict()
-        return RetNo.FAILD
+        app = Application.get(app_key=app_key)
+        if not app:
+            return RetNo.FAILD
+        mast_secret = app.mast_secret
+    mobj = hashlib.md5()
+    verification_str = verify_str + mast_secret
+    mobj.update(verification_str)
+    code = mobj.hexdigest().upper()
+    return RetNo.SUCCESS if code == hash_code else RetNo.FAILD
 
 
 @serviceHandle
@@ -39,7 +43,7 @@ def createApp(userID, appName):
             app_key = uuid.uuid3(uuid.NAMESPACE_DNS, appName).hex()
             mast_secret = uuid.uuid4()
             user = Profile[userID]
-            return Application(appName, app_key, mast_secret, user)
+            return Application(appName, app_key, mast_secret, user).to_dict()
     except Exception, e:
         log.err(e)
         return RetNo.FAILD
@@ -53,6 +57,21 @@ def deleteApp(userID, appName):
             if app and app.owner.id == userID:
                 app.delete()
         return RetNo.SUCCESS
+    except Exception, e:
+        log.err(e)
+        return RetNo.FAILD
+
+
+@serviceHandle
+def register_dev(imei, platform, dev_type):
+    did = uuid.uuid3(uuid.NAMESPACE_DNS, imei+platform+dev_type)
+    try:
+        with db_session:
+            dev = Device.get(did=did)
+            if dev:
+                return RetNo.EXISTED
+            mast_secret = uuid.uuid4()
+            return Device(did, platform, dev_type, mast_secret).to_dict()
     except Exception, e:
         log.err(e)
         return RetNo.FAILD
@@ -74,4 +93,5 @@ class AuthNode(object):
 
     def start(self):
         db.bind('mysql', host='127.0.0.1', user='root', passwd='root', db='push')
+        db.generate_mapping(create_tables=False)
         reactor.run()

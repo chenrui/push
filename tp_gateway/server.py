@@ -7,7 +7,7 @@ from twisted.web import vhost
 from twisted.internet import reactor
 from web.request import DelaySite
 from web.error import ErrNo, ErrorPage
-from auth.client import AuthClient
+from account.client import AccountClient
 
 
 class TPDispatch(resource.Resource):
@@ -40,7 +40,7 @@ class TPServer(object):
         self.port = port
 
     def config_web_service(self):
-        authClnt = AuthClient()
+        authClnt = AccountClient()
         self.webSrv = vhost.NameVirtualHost()
         self.webSrv.addHost(self.addr, TPDispatch(authClnt))
 

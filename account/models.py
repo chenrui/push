@@ -21,3 +21,16 @@ class Application(db.Entity, BaseModel):
         self.app_key = app_key
         self.mast_secret = mast_secret
         self.owner = owner
+
+
+class Device(db.Entity, BaseModel):
+    did = Required(str, 32, unique=True)
+    platform = Required(str, 8)
+    dev_type = Required(str, 16)
+    mast_secret = Required(str, 32)
+
+    def __init__(self, did, platform, dev_type, mast_secret):
+        self.did = did
+        self.platform = platform
+        self.dev_type = dev_type
+        self.mast_secret = mast_secret

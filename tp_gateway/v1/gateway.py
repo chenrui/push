@@ -27,25 +27,23 @@ class TPGateWay(resource.Resource):
         data = self.getReqdata(request)
         if not data:
             return ErrorPage(ErrNo.INVALID_PARAMETER)
-        # id verify
-        ret = self.verifyHeader(request)
+        # 1. verify message
+        ret = self.verifyMsg(data)
         if ret == ErrNo.UNAUTHORIZED:
             return ErrorPage(ret)
+        # 2. send msg to app service
         return SuccessPage()
 
-    def verifyHeader(self, request):
-        try:
-            auth = request.getHeader(b"Authorization")
-            if auth is None:
-                return ErrNo.UNAUTHORIZED
-            return self.authClnt.verifyHeader(auth)
-        except Exception:
-            return ErrNo.UNAUTHORIZED
+    def verifyMsg(self, data):
+        msg = data['notification']
+        return self.authClnt.verifyMsg(data['app_key'], data['verification_code'], msg)
 
     def getReqdata(self, request):
         try:
             data = request.content.getvalue()
             data = json.loads(data)
+            if 'app_key' not in data or 'verification_code' not in data:
+                return None
             return data
         except Exception:
             return None
