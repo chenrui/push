@@ -10,6 +10,7 @@ class ErrNo(object):
     INVALID_PARAMETER = 1003
     UNAUTHORIZED = 1004
     NO_RESOURCE = 1005
+    DUP_OPERATE = 1006
 
 
 class Error(object):
@@ -20,6 +21,7 @@ class Error(object):
                     ErrNo.INVALID_PARAMETER: (http.BAD_REQUEST, "参数值不合法"),
                     ErrNo.UNAUTHORIZED: (http.UNAUTHORIZED, "验证失败"),
                     ErrNo.NO_RESOURCE: (http.NOT_FOUND, "请求数据不存在"),
+                    ErrNo.DUP_OPERATE: (http.FORBIDDEN, "重复操作"),
                 }
 
     @classmethod
