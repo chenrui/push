@@ -3,7 +3,8 @@
 
 import json
 from twisted.web import resource
-from .globals import root
+from web.error import ErrorPage, SuccessPage, ErrNo
+from .globals import root, RetNo
 
 
 class AccountDev(resource.Resource):
@@ -18,5 +19,9 @@ class AccountDev(resource.Resource):
     def handler(self, data):
         if self.method == 'register':
             defer = root.callNode('register_dev', data['imei'], data['platform'], data['dev_type'])
+            defer.addCallback(lambda ret: ErrorPage(ErrNo.INTERNAL_SERVER_ERROR) if ret == RetNo.FAILD else SuccessPage(ret))
+            return defer
+        elif self.method == 'subscribe':
+            defer = root.callNode('subscribe', data['app_key'], data['did'])
             return defer
 

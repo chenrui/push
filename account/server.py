@@ -23,6 +23,7 @@ class AccountDispatch(resource.Resource):
             return resource.getChildForRequest(self, request)
         elif path == 'account-dev':
             self.putChild('register', AccountDev('register'))
+            self.putChild('subscribe', AccountDev('subscribe'))
             return resource.getChildForRequest(self, request)
         else:
             return ErrorPage(ErrNo.NO_RESOURCE)

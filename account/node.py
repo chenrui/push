@@ -19,6 +19,15 @@ def serviceHandle(target):
     service.mapTarget(target)
 
 
+def disconnected():
+    log.msg('xxxxxxxxxxxxxxxxxxxxxxx')
+    reactor.stop()
+
+
+##########################
+#  account app APIS
+##########################
+
 @serviceHandle
 def authorizeMessage(app_key, hash_code, verify_str):
     with db_session:
@@ -62,6 +71,10 @@ def deleteApp(userID, appName):
         return RetNo.FAILD
 
 
+##########################
+#  account dev APIS
+##########################
+
 @serviceHandle
 def register_dev(imei, platform, dev_type):
     did = uuid.uuid3(uuid.NAMESPACE_DNS, imei+platform+dev_type)
@@ -69,7 +82,7 @@ def register_dev(imei, platform, dev_type):
         with db_session:
             dev = Device.get(did=did)
             if dev:
-                return RetNo.EXISTED
+                return dev.to_dict()
             mast_secret = uuid.uuid4()
             return Device(did, platform, dev_type, mast_secret).to_dict()
     except Exception, e:
@@ -77,9 +90,19 @@ def register_dev(imei, platform, dev_type):
         return RetNo.FAILD
 
 
-def disconnected():
-    log.msg('xxxxxxxxxxxxxxxxxxxxxxx')
-    reactor.stop()
+@serviceHandle
+def subscribe(app_key, did):
+    try:
+        with db_session:
+            app = Application.get(app_key=app_key)
+            dev = Device.get(did=did)
+            if not app or not dev:
+                return RetNo.NOT_EXIST
+            dev.apps.add(app)
+            return RetNo.SUCCESS
+    except Exception, e:
+        log.err(e)
+        return RetNo.FAILD
 
 
 class AuthNode(object):

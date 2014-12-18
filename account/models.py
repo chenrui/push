@@ -15,6 +15,7 @@ class Application(db.Entity, BaseModel):
     app_key = Required(str, 32, unique=True)
     mast_secret = Required(str, 32)
     owner = Required(Profile)
+    devices = Set('Device')
 
     def __init__(self, app_name, app_key, mast_secret, owner=''):
         self.app_name = app_name
@@ -28,6 +29,7 @@ class Device(db.Entity, BaseModel):
     platform = Required(str, 8)
     dev_type = Required(str, 16)
     mast_secret = Required(str, 32)
+    apps = Set(Application)
 
     def __init__(self, did, platform, dev_type, mast_secret):
         self.did = did
