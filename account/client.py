@@ -18,3 +18,11 @@ class AccountClient(object):
             log.err(r.json())
             raise
         return r.json()
+
+    def registDevice(self, imei, platform, device_type):
+        payload = {'imei': imei, 'platform': platform, 'dev_type': device_type}
+        r = requests.post(self.url + '/account-dev/register', data=json.dumps(payload), headers=self.headers)
+        if r.status_code != 200:
+            log.err(r.json())
+            raise
+        return r.json()

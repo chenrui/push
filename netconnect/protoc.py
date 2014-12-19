@@ -25,10 +25,13 @@ class LiberateProtocol(protocol.Protocol):
         self.factory.doConnectionLost(self)
         self.factory.connmanager.dropConnectionByID(self.transport.sessionno)
 
-    def safeToWriteData(self, data, command):
+    def dataReceived(self, data):
+        self.datahandler.send(data)
+
+    def safeToWriteData(self, data, cmdID):
         if not self.transport.connected or data is None:
             return
-        senddata = self.factory.produceResult(data, command)
+        senddata = self.factory.dataprotocl.pack(data, cmdID)
         reactor.callFromThread(self.transport.write, senddata)
 
     def dataHandleCoroutine(self):
@@ -37,13 +40,15 @@ class LiberateProtocol(protocol.Protocol):
             data = yield
             self.buff += data
             while len(self.buff) >= length:
-                unpackdata = self.factory.dataprotocl.unpack(self.buff[:length])
-                if not unpackdata.get('result'):
-                    log.msg('illegal data package')
+                try:
+                    self.factory.dataprotocl.unpack(self.buff[:length])
+                except Exception:
+                    log.msg('illegal header package')
                     self.transport.loseConnection()
                     break
-                command = unpackdata.get('command')
-                rlength = unpackdata.get('length')
+                rlength = self.factory.dataprotocl.datalen
+                command = self.factory.dataprotocl.command
+                cmdid = self.factory.dataprotocl.cmdid
                 request = self.buff[length:length + rlength]
                 if len(request) < rlength:
                     log.msg('some data lose')
@@ -52,12 +57,8 @@ class LiberateProtocol(protocol.Protocol):
                 d = self.factory.doDataReceived(self, command, request)
                 if not d:
                     continue
-                d.addCallback(self.safeToWriteData, command)
+                d.addCallback(self.safeToWriteData, cmdid)
                 d.addErrback(DefferedErrorHandle)
-
-    def dataReceived(self, data):
-        self.datahandler.send(data)
-
 
 
 class LiberateFactory(protocol.ServerFactory):
@@ -84,12 +85,9 @@ class LiberateFactory(protocol.ServerFactory):
     def getServiceChannel(self):
         return self.service
 
-    def doDataReceived(self, conn, commandID, data):
-        defer_tool = self.service.callTarget(commandID, conn, data)
+    def doDataReceived(self, conn, command, data):
+        defer_tool = self.service.callTarget(command, conn, data)
         return defer_tool
-
-    def produceResult(self, command, response):
-        return self.dataprotocl.pack(command, response)
 
     def loseConnection(self, connID):
         self.connmanager.loseConnection(connID)

@@ -58,7 +58,7 @@ class Service(object):
         self._lock.acquire()
         try:
             data = target(*args, **kwargs)
-            if not defer:
+            if not data:
                 return None
             if isinstance(data, defer.Deferred):
                 return data

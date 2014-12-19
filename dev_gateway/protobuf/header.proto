@@ -1,0 +1,9 @@
+message ProtocolHeader
+{
+    enum Command {
+        REQUEST = 1;
+    }
+
+    required Command cmdid = 1;
+    required int32 datalen = 2;
+}

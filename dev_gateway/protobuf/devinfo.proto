@@ -1,0 +1,7 @@
+message DeviceInfo
+{
+    required string imei = 1;
+    required string platform = 2;
+    required string device_type = 3;
+    optional string device_id = 4;
+}
