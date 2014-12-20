@@ -37,7 +37,7 @@ class AccountServer(object):
         self.root_port = root_port
 
     def masterapp(self):
-        rootservice = service.Service("rootservice")
+        rootservice = service.Service("accountservice")
         root.addServiceChannel(rootservice)
         root.doNodeConnect = _doChildConnect
         root.doNodeLostConnect = _doChildLostConnect
