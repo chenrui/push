@@ -29,6 +29,7 @@ class TPGateWay(resource.Resource):
             return ErrorPage(ErrNo.INVALID_PARAMETER)
         # 1. verify message
         ret = self.verifyMsg(data)
+        log.err(ret)
         if ret == ErrNo.UNAUTHORIZED:
             return ErrorPage(ret)
         # 2. send msg to app service

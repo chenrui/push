@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import importlib
 from twisted.web import vhost, resource
 from twisted.internet import reactor
 from web.request import DelaySite
 from web.error import ErrNo, ErrorPage
 from utils import service
-# from utils.logger import log
+from utils.db import db
+from utils.logger import log
 from distributed.root import BilateralFactory
 from .globals import root
 from .account_app import AccountApp
@@ -30,11 +32,17 @@ class AccountDispatch(resource.Resource):
 
 
 class AccountServer(object):
-    def __init__(self, addr, port, root_port):
+
+    @classmethod
+    def db_mapping(self, create_tables=False):
+        importlib.import_module('account.models')
+        db.bind('mysql', host='127.0.0.1', user='root', passwd='root', db='push')
+        db.generate_mapping(create_tables=create_tables)
+
+    def __init__(self, addr, port):
         self.webSrv = None
         self.addr = addr
         self.port = port
-        self.root_port = root_port
 
     def masterapp(self):
         rootservice = service.Service("accountservice")
@@ -43,9 +51,11 @@ class AccountServer(object):
         root.doNodeLostConnect = _doChildLostConnect
         self.webSrv = vhost.NameVirtualHost()
         self.webSrv.addHost(self.addr, AccountDispatch())
+        importlib.import_module('account.command')
+        self.db_mapping(True)
 
     def start(self):
-        reactor.listenTCP(self.root_port, BilateralFactory(root))
+        # reactor.listenTCP(self.root_port, BilateralFactory(root))
         reactor.listenTCP(self.port, DelaySite(self.webSrv))
         reactor.run()
 

@@ -45,7 +45,6 @@ class TPServer(object):
         self.webSrv.addHost(self.addr, TPDispatch(authClnt))
 
     def _do_start(self):
-        self.config_auth_client()
         self.config_web_service()
         reactor.listenTCP(self.port, DelaySite(self.webSrv))
 

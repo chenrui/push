@@ -4,11 +4,12 @@
 import requests
 import json
 from utils.logger import log
+from web.error import ErrNo
 
 
 class AccountClient(object):
     def __init__(self):
-        self.url = 'http://0.0.0.0:8888'
+        self.url = 'http://0.0.0.0:9999'
         self.headers = {'content-type': 'application/json'}
 
     def verifyMsg(self, app_key, verification_code, msg):
@@ -16,7 +17,7 @@ class AccountClient(object):
         r = requests.post(self.url + '/account-app/checkmsg', data=json.dumps(payload), headers=self.headers)
         if r.status_code != 200:
             log.err(r.json())
-            raise
+            return ErrNo.UNAUTHORIZED
         return r.json()
 
     def registDevice(self, imei, platform, device_type):

@@ -6,22 +6,17 @@ import uuid
 from twisted.internet import reactor
 from distributed.remote import RemoteObject
 from pony.orm import db_session
+from web.error import ErrNo, ErrorPage, SuccessPage
 from utils import service
 from utils.logger import log
 from utils.db import db
 from .models import Application, Profile, Device
-from .globals import RetNo
-
-service = service.Service('reference', service.Service.SINGLE_STYLE)
+from .globals import root
 
 
 def serviceHandle(target):
+    service = root.getServiceChannel()
     service.mapTarget(target)
-
-
-def disconnected():
-    log.msg('xxxxxxxxxxxxxxxxxxxxxxx')
-    reactor.stop()
 
 
 ##########################
@@ -30,16 +25,20 @@ def disconnected():
 
 @serviceHandle
 def authorizeMessage(app_key, hash_code, verify_str):
-    with db_session:
-        app = Application.get(app_key=app_key)
-        if not app:
-            return RetNo.FAILD
-        mast_secret = app.mast_secret
-    mobj = hashlib.md5()
-    verification_str = verify_str + mast_secret
-    mobj.update(verification_str)
-    code = mobj.hexdigest().upper()
-    return RetNo.SUCCESS if code == hash_code else RetNo.FAILD
+    try:
+        with db_session:
+            app = Application.get(app_key=app_key)
+            if not app:
+                return ErrorPage(ErrNo.UNAUTHORIZED)
+            mast_secret = app.mast_secret
+        mobj = hashlib.md5()
+        verification_str = verify_str + mast_secret
+        mobj.update(verification_str)
+        code = mobj.hexdigest().upper()
+        return SuccessPage() if code == hash_code else ErrorPage(ErrNo.UNAUTHORIZED)
+    except Exception, e:
+        log.err(e)
+        return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 
 @serviceHandle
@@ -48,14 +47,15 @@ def createApp(userID, appName):
         with db_session:
             app = Application.get(app_name=appName)
             if app:
-                return RetNo.EXISTED
+                return ErrorPage(ErrNo.DUP_OPERATE)
             app_key = uuid.uuid3(uuid.NAMESPACE_DNS, appName).hex()
             mast_secret = uuid.uuid4()
             user = Profile[userID]
-            return Application(appName, app_key, mast_secret, user).to_dict()
+            app = Application(appName, app_key, mast_secret, user)
+            return SuccessPage(app.to_dict())
     except Exception, e:
         log.err(e)
-        return RetNo.FAILD
+        return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 
 @serviceHandle
@@ -65,10 +65,10 @@ def deleteApp(userID, appName):
             app = Application.get(app_name=appName)
             if app and app.owner.id == userID:
                 app.delete()
-        return RetNo.SUCCESS
+        return SuccessPage()
     except Exception, e:
         log.err(e)
-        return RetNo.FAILD
+        return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 
 ##########################
@@ -81,13 +81,13 @@ def register_dev(imei, platform, dev_type):
     try:
         with db_session:
             dev = Device.get(did=did)
-            if dev:
-                return dev.to_dict()
-            mast_secret = uuid.uuid4()
-            return Device(did, platform, dev_type, mast_secret).to_dict()
+            if not dev:
+                mast_secret = uuid.uuid4()
+                dev = Device(did, platform, dev_type, mast_secret)
+            return SuccessPage(dev.to_dict())
     except Exception, e:
         log.err(e)
-        return RetNo.FAILD
+        return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 
 @serviceHandle
@@ -97,22 +97,23 @@ def subscribe(app_key, did):
             app = Application.get(app_key=app_key)
             dev = Device.get(did=did)
             if not app or not dev:
-                return RetNo.NOT_EXIST
+                return ErrorPage(ErrNo.INVALID_PARAMETER)
             dev.apps.add(app)
-            return RetNo.SUCCESS
+            return SuccessPage()
     except Exception, e:
         log.err(e)
-        return RetNo.FAILD
+        return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 
 class AuthNode(object):
+    pass
     def __init__(self, name):
         self.remote = RemoteObject(name)
         self.remote.addServiceChannel(service)
 
     def connect(self, addr):
         self.remote.connect(addr)
-        self.remote.disconnectCallback(disconnected)
+        # self.remote.disconnectCallback(disconnected)
 
     def start(self):
         db.bind('mysql', host='127.0.0.1', user='root', passwd='root', db='push')

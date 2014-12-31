@@ -4,7 +4,7 @@
 from account.server import AccountServer
 import configure
 
-addr, port = configure.AuthServer
-auth = AccountServer(addr, port, configure.AuthRootPort)
-auth.masterapp()
-auth.start()
+addr, port = configure.accountServer
+account = AccountServer(addr, port)
+account.masterapp()
+account.start()

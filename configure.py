@@ -4,6 +4,5 @@
 # third party server
 TPServer = ('0.0.0.0', 8888)
 
-# auth server
-AuthServer = ('localhost', 9999)
-AuthRootPort = 9998
+# account server
+accountServer = ('0.0.0.0', 9999)
