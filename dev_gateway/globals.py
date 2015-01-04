@@ -9,8 +9,3 @@ from distributed.remote import RemoteObject
 factory = LiberateFactory()
 account = AccountClient()
 gateway = RemoteObject()
-
-
-class RetNo(object):
-    FAILD = 0
-    SUCCESS = 1

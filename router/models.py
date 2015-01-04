@@ -10,8 +10,3 @@ class RouteTable(db.Entity, BaseModel):
     # 1: login; -1: logout
     status = Required(int)
 
-    def __init__(self, gateway_name, did, status = 1):
-        self.gateway_name = gateway_name
-        self.did = did
-        self.status = status
-

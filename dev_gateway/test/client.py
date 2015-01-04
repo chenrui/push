@@ -26,10 +26,21 @@ def init():
     return header.SerializeToString() + dev.SerializeToString()
 
 
+def init_result(data):
+    header = ProtocolHeader()
+    dev = DeviceInfo()
+    header.ParseFromString(data)
+    print header.datalen
+    dev.ParseFromString(data[header.ByteSize():])
+    print dev
+
+
+
 
 
 def main():
     client = connect(configure.DevServer)
     client.sendall(init())
     data = client.recv(1024)
+    init_result(data)
 

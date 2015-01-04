@@ -5,6 +5,7 @@ from pony.orm import db_session
 from utils.logger import log
 from .models import RouteTable
 from .globals import root
+from .errno import RetNo
 
 
 def serviceHandle(target):
@@ -23,7 +24,8 @@ def login(gateway_name, did):
             route.status = 1
         else:
             # new
-            RouteTable(gateway_name, did, 1)
+            RouteTable(gateway_name=gateway_name, did=did, status=1)
+    return RetNo.SUCCESS
 
 
 @serviceHandle

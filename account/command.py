@@ -49,9 +49,9 @@ def createApp(userID, appName):
             if app:
                 return ErrorPage(ErrNo.DUP_OPERATE)
             app_key = uuid.uuid3(uuid.NAMESPACE_DNS, appName).hex
-            mast_secret = uuid.uuid4()
+            mast_secret = uuid.uuid4().hex
             user = Profile[userID]
-            app = Application(appName, app_key, mast_secret, user)
+            app = Application(app_name=appName, app_key=app_key, mast_secret=mast_secret, owner=user)
             return SuccessPage(app.to_dict())
     except Exception, e:
         log.err(e)
