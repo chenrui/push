@@ -13,7 +13,7 @@ def callRemote(obj, funcName, *args, **kw):
 class RemoteObject(object):
     '''远程调用对象'''
 
-    def __init__(self, name):
+    def __init__(self, name=None):
         self._name = name
         self._factory = pb.PBClientFactory()
         self._reference = ProxyReference()

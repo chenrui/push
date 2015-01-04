@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import importlib
 from twisted.internet import reactor
 from utils import service
 from distributed.root import BilateralFactory
@@ -16,16 +17,18 @@ class RouterServer(object):
         root.addServiceChannel(routerservice)
         root.doNodeConnect = _doChildConnect
         root.doNodeLostConnect = _doChildLostConnect
+        importlib.import_module('router.command')
 
     def start(self):
-        reactor.listenTCP(self.root_port, BilateralFactory(root))
+        self.masterapp()
+        reactor.listenTCP(self.port, BilateralFactory(root))
         reactor.run()
 
 
 
-def _doChildConnect():
+def _doChildConnect(name, transport):
     pass
 
 
-def _doChildLostConnect():
+def _doChildLostConnect(name, transport):
     pass

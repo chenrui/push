@@ -1,26 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import importlib
 from twisted.internet import reactor
 from utils import service
 from .datapack import DataPackProtoc
-from .globals import factory
+from .globals import factory, gateway
 
 
 class DevServer(object):
     '''device gateway server'''
 
-    def __init__(self, port):
+    def __init__(self, node_name, port, remote_addr):
         self.port = port
         self.factory = factory
+        self.node_name = node_name
+        self.remode_addr = remote_addr
 
     def config_net_service(self):
         devservice = service.Service("devservice")
         self.factory.addServiceChannel(devservice)
         self.factory.setDataProtocl(DataPackProtoc())
+        importlib.import_module('dev_gateway.command')
+
+    def config_gateway(self):
+        gateway.setName(self.node_name)
+        gateway.connect(self.remode_addr)
 
     def _do_start(self):
         self.config_net_service()
+        self.config_gateway()
         reactor.listenTCP(self.port, self.factory)
 
     def start(self):

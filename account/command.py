@@ -48,7 +48,7 @@ def createApp(userID, appName):
             app = Application.get(app_name=appName)
             if app:
                 return ErrorPage(ErrNo.DUP_OPERATE)
-            app_key = uuid.uuid3(uuid.NAMESPACE_DNS, appName).hex()
+            app_key = uuid.uuid3(uuid.NAMESPACE_DNS, appName).hex
             mast_secret = uuid.uuid4()
             user = Profile[userID]
             app = Application(appName, app_key, mast_secret, user)
@@ -77,13 +77,16 @@ def deleteApp(userID, appName):
 
 @serviceHandle
 def register_dev(imei, platform, dev_type):
-    did = uuid.uuid3(uuid.NAMESPACE_DNS, imei+platform+dev_type)
+    string = imei + platform + dev_type
+    did = uuid.uuid3(uuid.NAMESPACE_DNS, str(string)).hex
+    log.msg('register device info:')
+    log.msg('\timei: %s, platform: %s, dev_type: %s, did: %s' % (imei, platform, dev_type, did))
     try:
         with db_session:
             dev = Device.get(did=did)
             if not dev:
-                mast_secret = uuid.uuid4()
-                dev = Device(did, platform, dev_type, mast_secret)
+                mast_secret = uuid.uuid4().hex
+                dev = Device(did=did, platform=platform, dev_type=dev_type, mast_secret=mast_secret)
             return SuccessPage(dev.to_dict())
     except Exception, e:
         log.err(e)

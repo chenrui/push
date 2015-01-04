@@ -16,7 +16,7 @@ class LiberateProtocol(protocol.Protocol):
     buff = ""
 
     def connectionMade(self):
-        self.factory.connmanger.addConnection(self)
+        self.factory.connmanager.addConnection(self)
         self.factory.doConnectionMade(self)
         self.datahandler = self.dataHandleCoroutine()
         self.datahandler.next()

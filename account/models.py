@@ -30,9 +30,3 @@ class Device(db.Entity, BaseModel):
     dev_type = Required(str, 16)
     mast_secret = Required(str, 32)
     apps = Set(Application)
-
-    def __init__(self, did, platform, dev_type, mast_secret):
-        self.did = did
-        self.platform = platform
-        self.dev_type = dev_type
-        self.mast_secret = mast_secret

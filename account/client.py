@@ -25,5 +25,5 @@ class AccountClient(object):
         r = requests.post(self.url + '/account-dev/register', data=json.dumps(payload), headers=self.headers)
         if r.status_code != 200:
             log.err(r.json())
-            raise
+            return ErrNo.INTERNAL_SERVER_ERROR
         return r.json()

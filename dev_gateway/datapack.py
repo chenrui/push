@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from protobuf.header_pb2 import ProtocolHeader
+from utils.logger import log
 
 
 class DataPackProtoc():
-    CMD_MAPPING = {ProtocolHeader.REQUEST, 'request'}
+    CMD_MAPPING = {ProtocolHeader.INITIALIZE: 'init',}
 
     def __init__(self):
         self.header = ProtocolHeader()

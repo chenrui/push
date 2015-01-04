@@ -13,7 +13,7 @@ class ConnectionManager(object):
         _conn = Connection(conn)
         if _conn.id in self.connects:
             raise KeyError
-        self.connects[conn.id] = _conn
+        self.connects[_conn.id] = _conn
 
     def dropConnectionByID(self, connID):
         try:

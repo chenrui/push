@@ -34,6 +34,9 @@ class PBRoot(pb.Root):
         '''
         self.service = service
 
+    def getServiceChannel(self):
+        return self.service
+
     def remote_takeProxy(self, name, transport):
         '''添加node节点
         '''
