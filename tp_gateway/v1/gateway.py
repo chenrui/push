@@ -13,9 +13,10 @@ class TPGateWay(resource.Resource):
     '''Third party gateway'''
     version = 1
 
-    def __init__(self, authClnt):
+    def __init__(self, authClnt, msgClnt):
         resource.Resource.__init__(self)
         self.authClnt = authClnt
+        self.msgClnt = msgClnt
 
     def getChild(self, path, request):
         if path == 'push':
@@ -29,11 +30,15 @@ class TPGateWay(resource.Resource):
             return ErrorPage(ErrNo.INVALID_PARAMETER)
         # 1. verify message
         ret = self.verifyMsg(data)
-        log.err(ret)
         if ret == ErrNo.UNAUTHORIZED:
             return ErrorPage(ret)
-        # 2. send msg to app service
-        return SuccessPage()
+        # 2. send msg to message service
+        log.msg(data)
+        ret = self.msgClnt.storage(data)
+        if isinstance(ret, dict):
+            return SuccessPage(ret)
+        else:
+            return ErrorPage(ret)
 
     def verifyMsg(self, data):
         msg = data['notification']
@@ -43,7 +48,8 @@ class TPGateWay(resource.Resource):
         try:
             data = request.content.getvalue()
             data = json.loads(data)
-            if 'app_key' not in data or 'verification_code' not in data:
+            if 'app_key' not in data or 'verification_code' not in data \
+                or 'audience' not in data or 'notification' not in data:
                 return None
             return data
         except Exception:

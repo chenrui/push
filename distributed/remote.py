@@ -36,6 +36,9 @@ class RemoteObject(object):
     def addServiceChannel(self, service):
         self._reference.addService(service)
 
+    def getServiceChannel(self):
+        return self._reference.getService()
+
     def disconnectCallback(self, callback):
         self._factory.stopFactory = callback
 

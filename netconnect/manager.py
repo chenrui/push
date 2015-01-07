@@ -14,6 +14,7 @@ class ConnectionManager(object):
         if _conn.id in self.connects:
             raise KeyError
         self.connects[_conn.id] = _conn
+        return _conn.id
 
     def dropConnectionByID(self, connID):
         try:
@@ -29,11 +30,11 @@ class ConnectionManager(object):
         if conn:
             conn.loseConnection()
 
-    def pushObject(self, topicID, msg, sendList):
+    def pushObject(self, cmdID, msg, sendList):
         for target in sendList:
             try:
                 conn = self.getConnectionByID(target)
                 if conn:
-                    conn.safeToWriteData(topicID, msg)
+                    conn.safeToWriteData(cmdID, msg)
             except Exception,e:
                 log.err(e)

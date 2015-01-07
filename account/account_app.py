@@ -18,7 +18,7 @@ class AccountApp(resource.Resource):
 
     def handler(self, data):
         if self.method == 'checkmsg':
-            defer = root.remote_callTarget('authorizeMessage', data['app_key'], data['hash_code'], data['verify_str'])
+            defer = root.remote_callTarget('authorizeMessage', data['app_key'], data['hash_code'], data['verify_msg'])
             return defer
         elif self.method == 'new':
             defer = root.remote_callTarget('createApp', data['user_id'], data['app_name'])

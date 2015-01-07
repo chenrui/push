@@ -38,5 +38,5 @@ def _doChildConnect(name, transport):
     pass
 
 
-def _doChildLostConnect(name, transport):
+def _doChildLostConnect(nodeID):
     pass

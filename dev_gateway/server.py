@@ -24,12 +24,14 @@ class DevServer(object):
         importlib.import_module('dev_gateway.command')
 
     def config_gateway(self):
+        devservice = service.Service("devservice-inner")
+        gateway.addServiceChannel(devservice)
         gateway.setName(self.node_name)
         gateway.connect(self.remode_addr)
 
     def _do_start(self):
-        self.config_net_service()
         self.config_gateway()
+        self.config_net_service()
         reactor.listenTCP(self.port, self.factory)
 
     def start(self):

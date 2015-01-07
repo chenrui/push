@@ -13,3 +13,6 @@ nodeName = 'test'
 
 # router service
 routerService = ('0.0.0.0', 9998)
+
+# message service
+msgService = ('0.0.0.0', 9997)

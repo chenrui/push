@@ -7,6 +7,7 @@ from utils.logger import log
 
 class DataPackProtoc():
     CMD_MAPPING = {ProtocolHeader.INITIALIZE: 'init',}
+    CMD_PUAH = ProtocolHeader.INITIALIZE
 
     def __init__(self):
         self.header = ProtocolHeader()

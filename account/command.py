@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
 import hashlib
 import uuid
 from twisted.internet import reactor
@@ -24,7 +25,7 @@ def serviceHandle(target):
 ##########################
 
 @serviceHandle
-def authorizeMessage(app_key, hash_code, verify_str):
+def authorizeMessage(app_key, hash_code, verify_msg):
     try:
         with db_session:
             app = Application.get(app_key=app_key)
@@ -32,7 +33,7 @@ def authorizeMessage(app_key, hash_code, verify_str):
                 return ErrorPage(ErrNo.UNAUTHORIZED)
             mast_secret = app.mast_secret
         mobj = hashlib.md5()
-        verification_str = verify_str + mast_secret
+        verification_str = json.dumps(verify_msg) + mast_secret
         mobj.update(verification_str)
         code = mobj.hexdigest().upper()
         return SuccessPage() if code == hash_code else ErrorPage(ErrNo.UNAUTHORIZED)

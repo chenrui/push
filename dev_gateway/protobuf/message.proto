@@ -1,0 +1,7 @@
+message PushMessage
+{
+    required int32 sendno = 1;
+    required string generator = 2;
+    required string title = 3;
+    required string body = 4;
+}

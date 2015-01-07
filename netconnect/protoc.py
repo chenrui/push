@@ -91,6 +91,3 @@ class LiberateFactory(protocol.ServerFactory):
 
     def loseConnection(self, connID):
         self.connmanager.loseConnection(connID)
-
-    def pushObject(self, topicID, msg, sendList):
-        self.connmanager.pushObject(topicID, msg, sendList)

@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
+import time
 from pony.orm import db_session
 from utils.logger import log
 from .models import RouteTable
 from .globals import root
 from .errno import RetNo
+from message.enum import MessageStatus
 
 
 def serviceHandle(target):
@@ -15,7 +18,6 @@ def serviceHandle(target):
 
 @serviceHandle
 def login(gateway_name, did):
-    log.err('xxxxxxxxxxxxx')
     with db_session:
         route = RouteTable.get(did=did)
         if route:
@@ -33,4 +35,17 @@ def logout(gateway_name, did):
     with db_session:
         route = RouteTable.get(did=did)
         if route and route.gateway_name == gateway_name:
-            route.status = -1
+            route.status = 0
+
+
+@serviceHandle
+def push(dids, msg):
+    # TODO: async
+    need_update = []
+    for did in dids:
+        with db_session:
+            table = RouteTable.get(did=did, status=1)
+            if table:
+                need_update.append(did)
+                root.callNodeByName(table.gateway_name, 'push', did, msg)
+    root.callNodeByName('message-server', 'update_msg_status', need_update, msg['id'], MessageStatus.SENDING)

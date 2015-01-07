@@ -8,14 +8,16 @@ from twisted.internet import reactor
 from web.request import DelaySite
 from web.error import ErrNo, ErrorPage
 from account.client import AccountClient
+from message.client import MessageClient
 
 
 class TPDispatch(resource.Resource):
     '''Third party gateway dispatcher'''
 
-    def __init__(self, authClnt):
+    def __init__(self, authClnt, msgClnt):
         resource.Resource.__init__(self)
         self.authClnt = authClnt
+        self.msgClnt = msgClnt
 
     def getChild(self, version, request):
         if version == '':
@@ -23,7 +25,7 @@ class TPDispatch(resource.Resource):
         else:
             try:
                 mo = importlib.import_module('tp_gateway.%s.gateway' % version)
-                return mo.TPGateWay(self.authClnt)
+                return mo.TPGateWay(self.authClnt, self.msgClnt)
             except Exception:
                 return ErrorPage(ErrNo.INVALID_PARAMETER)
 
@@ -41,8 +43,9 @@ class TPServer(object):
 
     def config_web_service(self):
         authClnt = AccountClient()
+        msgClnt = MessageClient()
         self.webSrv = vhost.NameVirtualHost()
-        self.webSrv.addHost(self.addr, TPDispatch(authClnt))
+        self.webSrv.addHost(self.addr, TPDispatch(authClnt, msgClnt))
 
     def _do_start(self):
         self.config_web_service()

@@ -14,6 +14,9 @@ class ProxyReference(pb.Referenceable):
     def addService(self, service):
         self._service = service
 
+    def getService(self):
+        return self._service
+
     def remote_callNode(self, command, *arg, **kw):
         '''代理发送数据
         '''

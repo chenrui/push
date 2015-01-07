@@ -11,6 +11,8 @@ class ErrNo(object):
     UNAUTHORIZED = 1004
     NO_RESOURCE = 1005
     DUP_OPERATE = 1006
+    NO_MATCHED_OBJ = 1007
+
 
 
 class Error(object):
@@ -22,6 +24,7 @@ class Error(object):
                     ErrNo.UNAUTHORIZED: (http.UNAUTHORIZED, "验证失败"),
                     ErrNo.NO_RESOURCE: (http.NOT_FOUND, "请求数据不存在"),
                     ErrNo.DUP_OPERATE: (http.FORBIDDEN, "重复操作"),
+                    ErrNo.NO_MATCHED_OBJ: (http.BAD_REQUEST, "没有满足条件的推送目标"),
                 }
 
     @classmethod
