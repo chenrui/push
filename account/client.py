@@ -3,7 +3,7 @@
 
 import requests
 import json
-from utils.logger import log
+from utils.logger import logger
 from web.error import ErrNo
 
 
@@ -16,7 +16,7 @@ class AccountClient(object):
         payload = {'app_key': app_key, 'hash_code': verification_code, 'verify_msg': msg}
         r = requests.post(self.url + '/account-app/checkmsg', data=json.dumps(payload), headers=self.headers)
         if r.status_code != 200:
-            log.err(r.json())
+            logger.error(r.json())
             return ErrNo.UNAUTHORIZED
         return r.json()
 
@@ -24,6 +24,6 @@ class AccountClient(object):
         payload = {'imei': imei, 'platform': platform, 'dev_type': device_type}
         r = requests.post(self.url + '/account-dev/register', data=json.dumps(payload), headers=self.headers)
         if r.status_code != 200:
-            log.err(r.json())
+            logger.error(r.json())
             return ErrNo.INTERNAL_SERVER_ERROR
         return r.json()

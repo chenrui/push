@@ -3,8 +3,8 @@
 
 import json
 from twisted.web import resource
-from twisted.python import log
 from web.error import ErrNo, ErrorPage, SuccessPage
+from utils.logger import logger
 
 SUCCESS = 1
 
@@ -28,12 +28,13 @@ class TPGateWay(resource.Resource):
         data = self.getReqdata(request)
         if not data:
             return ErrorPage(ErrNo.INVALID_PARAMETER)
+
+        logger.debug('receive %s', data)
         # 1. verify message
-        ret = self.verifyMsg(data)
-        if ret == ErrNo.UNAUTHORIZED:
-            return ErrorPage(ret)
+        #ret = self.verifyMsg(data)
+        #if ret == ErrNo.UNAUTHORIZED:
+        #    return ErrorPage(ret)
         # 2. send msg to message service
-        log.msg(data)
         ret = self.msgClnt.storage(data)
         if isinstance(ret, dict):
             return SuccessPage(ret)

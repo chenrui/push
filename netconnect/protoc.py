@@ -3,12 +3,12 @@
 
 from twisted.internet import reactor
 from twisted.internet import protocol
-from twisted.python import log
+from utils.logger import logger
 from .manager import ConnectionManager
 
 
 def DefferedErrorHandle(e):
-    log.err(str(e))
+    logger.error(str(e))
     return
 
 
@@ -20,8 +20,10 @@ class LiberateProtocol(protocol.Protocol):
         self.factory.doConnectionMade(self)
         self.datahandler = self.dataHandleCoroutine()
         self.datahandler.next()
+        logger.info('Client [%d] connect' % self.transport.sessionno)
 
     def connectionLost(self, reason):
+        logger.info('Client [%d] lost' % self.transport.sessionno)
         self.factory.doConnectionLost(self)
         self.factory.connmanager.dropConnectionByID(self.transport.sessionno)
 
@@ -43,7 +45,7 @@ class LiberateProtocol(protocol.Protocol):
                 try:
                     self.factory.dataprotocl.unpack(self.buff[:length])
                 except Exception:
-                    log.msg('illegal header package')
+                    logger.info('receive illegal header package')
                     self.transport.loseConnection()
                     break
                 rlength = self.factory.dataprotocl.datalen
@@ -51,7 +53,7 @@ class LiberateProtocol(protocol.Protocol):
                 cmdid = self.factory.dataprotocl.cmdid
                 request = self.buff[length:length + rlength]
                 if len(request) < rlength:
-                    log.msg('some data lose')
+                    logger.info('some data lost')
                     break
                 self.buff = self.buff[length + rlength:]
                 d = self.factory.doDataReceived(self, command, request)

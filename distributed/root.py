@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from twisted.python import log
 from twisted.spread import pb
 from manager import NodesManager
 from node import Node
+from utils.logger import logger
 
 
 class BilateralBroker(pb.Broker):
 
     def connectionLost(self, reason):
         clientID = self.transport.sessionno
-        log.msg("node [%d] lose" % clientID)
         self.factory.root.dropNodeSessionId(clientID)
         pb.Broker.connectionLost(self, reason)
 
@@ -40,7 +39,7 @@ class PBRoot(pb.Root):
     def remote_takeProxy(self, name, transport):
         '''添加node节点
         '''
-        log.msg('node [%s] takeProxy ready' % name)
+        logger.info('node [%s] connect' % name)
         node = Node(name, name)
         self.nodesmanager.addNode(node)
         node.setTransport(transport)
@@ -71,6 +70,7 @@ class PBRoot(pb.Root):
         node = self.nodesmanager.getNodeBySessionId(session_id)
         if not node:
             return
+        logger.info('node [%s] lost' % node._name)
         node_id = node._id
         self.doNodeLostConnect(node_id)
         self.nodesmanager.dropNodeByID(node_id)

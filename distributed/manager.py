@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from twisted.python import log
+from utils.logger import logger
 
 
 class NodesManager(object):
@@ -40,21 +40,21 @@ class NodesManager(object):
     def callNode(self, *args, **kwargs):
         node = self.loadBalance()
         if not node:
-            log.err("node doesn't exists")
+            logger.error("node doesn't exists")
             return
         return node.callbackNode(*args, **kwargs)
 
     def callNodeByID(self, nodeID, *args, **kwargs):
         node = self._nodes.get(nodeID, None)
         if not node:
-            log.err("nodeID %s doesn't exists" % nodeID)
+            logger.error("nodeID %s doesn't exists" % nodeID)
             return
         return node.callbackNode(*args, **kwargs)
 
     def callNodeByName(self, nodeName, *args, **kwargs):
         node = self.getNodeByName(nodeName)
         if not node:
-            log.err("nodeName %s doesn't exists" % nodeName)
+            logger.error("nodeName %s doesn't exists" % nodeName)
             return
         return node.callbackNode(*args, **kwargs)
 

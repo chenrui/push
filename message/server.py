@@ -8,6 +8,7 @@ from web.request import DelaySite
 from utils.db import db
 from web.error import ErrorPage, ErrNo
 from utils import service
+from utils.logger import set_logger, logging
 from .globals import remote
 from .resource import MessageStorage, MessageStatus
 
@@ -54,6 +55,7 @@ class MessageServer(object):
         self.db_mapping(True)
 
     def _do_start(self):
+        set_logger(logging.DEBUG)
         self.config_msg_server()
         self.config_remote()
         reactor.listenTCP(self.port, DelaySite(self.webSrv))

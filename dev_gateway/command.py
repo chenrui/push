@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from utils.logger import log
+from utils.logger import logger
 from protobuf.devinfo_pb2 import DeviceInfo
 from protobuf.message_pb2 import PushMessage
 from router.errno import RetNo
@@ -22,7 +22,6 @@ def routerServiceHanlde(target):
 
 
 def connectionlost(conn):
-    log.msg('connection id %d lost' % conn.transport.sessionno)
     gateway.callRemote('logout', gateway.getName(), conn.device_id)
     try:
         del ConnectionMapping[conn.device_id]
@@ -37,7 +36,7 @@ def init(conn, data):
         dev = DeviceInfo()
         dev.ParseFromString(data)
     except Exception, e:
-        log.err(e)
+        logger.error(e)
         return None
     # register device
     if not dev.device_id:
@@ -53,7 +52,6 @@ def init(conn, data):
 
 @routerServiceHanlde
 def push(did, data):
-    log.msg(data)
     msg = PushMessage()
     msg.sendno = data['sendno']
     msg.generator = data.get('generator', '')

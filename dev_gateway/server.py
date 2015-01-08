@@ -4,6 +4,7 @@
 import importlib
 from twisted.internet import reactor
 from utils import service
+from utils.logger import set_logger, logging
 from .datapack import DataPackProtoc
 from .globals import factory, gateway
 
@@ -30,6 +31,7 @@ class DevServer(object):
         gateway.connect(self.remode_addr)
 
     def _do_start(self):
+        set_logger(logging.DEBUG)
         self.config_gateway()
         self.config_net_service()
         reactor.listenTCP(self.port, self.factory)

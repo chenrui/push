@@ -9,6 +9,7 @@ from web.request import DelaySite
 from web.error import ErrNo, ErrorPage
 from account.client import AccountClient
 from message.client import MessageClient
+from utils.logger import set_logger, logging
 
 
 class TPDispatch(resource.Resource):
@@ -48,6 +49,7 @@ class TPServer(object):
         self.webSrv.addHost(self.addr, TPDispatch(authClnt, msgClnt))
 
     def _do_start(self):
+        set_logger(logging.DEBUG)
         self.config_web_service()
         reactor.listenTCP(self.port, DelaySite(self.webSrv))
 

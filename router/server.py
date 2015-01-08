@@ -5,6 +5,7 @@ import importlib
 from twisted.internet import reactor
 from utils import service
 from utils.db import db
+from utils.logger import set_logger, logging
 from distributed.root import BilateralFactory
 from .globals import root
 
@@ -28,6 +29,7 @@ class RouterServer(object):
         self.db_mapping(True)
 
     def start(self):
+        set_logger(logging.DEBUG)
         self.masterapp()
         reactor.listenTCP(self.port, BilateralFactory(root))
         reactor.run()

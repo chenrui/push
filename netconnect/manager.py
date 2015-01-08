@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from utils.logger import log
+from utils.logger import logger
 from .connection import Connection
 
 
@@ -20,7 +20,7 @@ class ConnectionManager(object):
         try:
             del self.connects[connID]
         except Exception, e:
-            log.msg(e)
+            logger.error(e)
 
     def getConnectionByID(self, connID):
         return self.connects.get(connID, None)
@@ -37,4 +37,4 @@ class ConnectionManager(object):
                 if conn:
                     conn.safeToWriteData(cmdID, msg)
             except Exception,e:
-                log.err(e)
+                logger.error(e)

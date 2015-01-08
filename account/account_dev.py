@@ -3,7 +3,6 @@
 
 import json
 from twisted.web import resource
-from web.error import ErrorPage, SuccessPage, ErrNo
 from .globals import root
 
 

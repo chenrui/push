@@ -9,7 +9,7 @@ from distributed.remote import RemoteObject
 from pony.orm import db_session
 from web.error import ErrNo, ErrorPage, SuccessPage
 from utils import service
-from utils.logger import log
+from utils.logger import logger
 from utils.db import db
 from .models import Application, Profile, Device
 from .globals import root
@@ -38,7 +38,7 @@ def authorizeMessage(app_key, hash_code, verify_msg):
         code = mobj.hexdigest().upper()
         return SuccessPage() if code == hash_code else ErrorPage(ErrNo.UNAUTHORIZED)
     except Exception, e:
-        log.err(e)
+        logger.error(e)
         return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 
@@ -55,7 +55,7 @@ def createApp(userID, appName):
             app = Application(app_name=appName, app_key=app_key, mast_secret=mast_secret, owner=user)
             return SuccessPage(app.to_dict())
     except Exception, e:
-        log.err(e)
+        logger.error(e)
         return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 
@@ -68,7 +68,7 @@ def deleteApp(userID, appName):
                 app.delete()
         return SuccessPage()
     except Exception, e:
-        log.err(e)
+        logger.error(e)
         return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 
@@ -80,8 +80,8 @@ def deleteApp(userID, appName):
 def register_dev(imei, platform, dev_type):
     string = imei + platform + dev_type
     did = uuid.uuid3(uuid.NAMESPACE_DNS, str(string)).hex
-    log.msg('register device info:')
-    log.msg('\timei: %s, platform: %s, dev_type: %s, did: %s' % (imei, platform, dev_type, did))
+    logger.debug('register device info:')
+    logger.debug('\timei: %s, platform: %s, dev_type: %s, did: %s' % (imei, platform, dev_type, did))
     try:
         with db_session:
             dev = Device.get(did=did)
@@ -90,7 +90,7 @@ def register_dev(imei, platform, dev_type):
                 dev = Device(did=did, platform=platform, dev_type=dev_type, mast_secret=mast_secret)
             return SuccessPage(dev.to_dict())
     except Exception, e:
-        log.err(e)
+        logger.error(e)
         return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 
@@ -105,7 +105,7 @@ def subscribe(app_key, did):
             dev.apps.add(app)
             return SuccessPage()
     except Exception, e:
-        log.err(e)
+        logger.error(e)
         return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 

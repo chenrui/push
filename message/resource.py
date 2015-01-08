@@ -3,13 +3,14 @@
 
 import json
 import time
+import logging
 from twisted.web import resource
 from pony.orm import db_session
 from web.error import ErrorPage, ErrNo, SuccessPage
 from .models import Message, Message_X_Device
 from .enum import MessageStatus as MsgStatus
 from .globals import remote
-from utils.logger import log
+from utils.logger import logger
 
 
 class MessageStorage(resource.Resource):
@@ -20,8 +21,8 @@ class MessageStorage(resource.Resource):
 
     def storage(self, data):
         if not self.parse_audience(data['audience']):
+            logger.info('audience %s not found' % data['audience'])
             return ErrorPage(ErrNo.NO_MATCHED_OBJ)
-
         msg = self.parse_nofification(data['notification'], data.get('options', None))
         # TODO: async
         self.send_to_router(data['audience'], msg)
@@ -31,7 +32,8 @@ class MessageStorage(resource.Resource):
         with db_session:
             for did in dids:
                 Message_X_Device(did=did, msg_id=msg.id, status=MsgStatus.NOT_SEND)
-        remote.callRemote('push', dids, msg.to_dict())
+        logger.info('send msg to router: dids %s, msg %s' % (dids, msg.to_dict()))
+        remote.callRemote('push', dids, msg.to_dict(exclude=('expires',)))
 
     def send_to_router(self, audience, msg):
         if 'device_id' in audience:
@@ -78,11 +80,13 @@ class MessageStorage(resource.Resource):
         if options:
             sendno = options.get('sendno', 0)
             expires = options.get('expires', 86400) + current_time
+            generator = options.get('generator', '')
         else:
             sendno = 0
             expires = current_time + 86400
+            generator = ' '
         with db_session:
-            return Message(sendno=sendno, title=title, body=body, expires=expires)
+            return Message(sendno=sendno, generator=generator, title=title, body=body, expires=expires)
 
 
 class MessageStatus(resource.Resource):

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
-import time
 from pony.orm import db_session
-from utils.logger import log
 from .models import RouteTable
 from .globals import root
 from .errno import RetNo

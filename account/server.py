@@ -8,7 +8,7 @@ from web.request import DelaySite
 from web.error import ErrNo, ErrorPage
 from utils import service
 from utils.db import db
-from utils.logger import log
+from utils.logger import set_logger, logging
 from distributed.root import BilateralFactory
 from .globals import root
 from .account_app import AccountApp
@@ -55,6 +55,7 @@ class AccountServer(object):
         self.db_mapping(True)
 
     def start(self):
+        set_logger(logging.DEBUG)
         # reactor.listenTCP(self.root_port, BilateralFactory(root))
         reactor.listenTCP(self.port, DelaySite(self.webSrv))
         reactor.run()
