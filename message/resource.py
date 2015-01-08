@@ -9,7 +9,7 @@ from web.error import ErrorPage, ErrNo, SuccessPage
 from utils.logger import logger
 from .models import Message, Message_X_Device
 from .enum import MessageStatus as MsgStatus
-from .globals import remote
+from .globals import remote, account
 
 
 class MessageStorage(resource.Resource):
@@ -42,8 +42,7 @@ class MessageStorage(resource.Resource):
             return
         elif audience == 'all':
             # TODO: get all dids
-            handle = None
-            pass
+            handle = account.getDevices
         elif 'tag' in audience:
             # TODO: get dids in this tag
             handle = None
@@ -52,7 +51,7 @@ class MessageStorage(resource.Resource):
         page = 1
         page_size = 100
         while True:
-            dids = handle(page=page, size=page_size)
+            dids = handle(page, page_size)
             self._sendto(dids, msg)
             if len(dids) < page_size:
                 break

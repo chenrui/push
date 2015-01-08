@@ -15,10 +15,10 @@ def serviceHandle(target):
 
 
 @serviceHandle
-def update_msg_status(dids, msg_id, status):
-    logger.debug('update status: dids %s msg_id %d to %d' % (dids, msg_id, status))
+def update_msg_status(did, msg_ids, status):
+    logger.debug('update status: did %s msg_ids %s to %d' % (did, msg_ids, status))
     with db_session:
-        for did in dids:
+        for msg_id in msg_ids:
             m_x_d = Message_X_Device.get(did=did, msg_id=msg_id)
             m_x_d.status = status
 

@@ -27,3 +27,11 @@ class AccountClient(object):
             logger.error(r.json())
             return ErrNo.INTERNAL_SERVER_ERROR
         return r.json()
+
+    def getDevices(self, page, page_size):
+        r = requests.get(self.url + '/account-dev/device_ids?page=%d&page_size=%d' % (page, page_size))
+        d = r.json()
+        if r.status_code != 200:
+            logger.error(d)
+            return ErrNo.INTERNAL_SERVER_ERROR
+        return d['dids']

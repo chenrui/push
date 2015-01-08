@@ -38,6 +38,8 @@ def logout(gateway_name, did):
 
 @serviceHandle
 def push(dids, msg):
+    logger.debug(dids)
+    logger.debug(msg)
     # TODO: async
     for did in dids:
         with db_session:
@@ -47,8 +49,8 @@ def push(dids, msg):
 
 
 @serviceHandle
-def update_msg_status(did, msgid, status):
-    root.callNodeByName('message-server', 'update_msg_status', [did], msgid, status)
+def update_messages_status(did, msgids, status):
+    root.callNodeByName('message-server', 'update_msg_status', did, msgids, status)
 
 @serviceHandle
 def get_messages_by_status(did, status):

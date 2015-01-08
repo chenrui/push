@@ -4,6 +4,7 @@
 import json
 from twisted.web import resource
 from .globals import root
+from utils.logger import logger
 
 
 class AccountDev(resource.Resource):
@@ -11,9 +12,17 @@ class AccountDev(resource.Resource):
         resource.Resource.__init__(self)
         self.method = method
 
+    def render_GET(self, request):
+        if self.method == 'device_ids':
+            page = request.args['page'][0]
+            page_size = request.args['page_size'][0]
+            defer = root.remote_callTarget('get_dids', int(page), int(page_size))
+            return defer
+
     def render_POST(self, request):
         data = request.content.getvalue()
         return self.handler(json.loads(data))
+
 
     def handler(self, data):
         if self.method == 'register':

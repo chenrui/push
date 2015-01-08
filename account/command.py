@@ -109,6 +109,16 @@ def subscribe(app_key, did):
         return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
 
 
+@serviceHandle
+def get_dids(page, page_size):
+    with db_session:
+        offset = (page - 1) * page_size
+        sql = 'select * from Device limit %d offset %d' % (page_size, offset)
+        devs = Device.select_by_sql(sql)
+        dids = [dev.did for dev in devs]
+        return SuccessPage({'dids': dids})
+
+
 class AuthNode(object):
     pass
     def __init__(self, name):

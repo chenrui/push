@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
 from utils.logger import logger
 from protobuf.devinfo_pb2 import DeviceInfo
 from protobuf.message_pb2 import PushMessage
+from protobuf.message_ack_pb2 import PushMessageAck
 from router.errno import RetNo
 from message.enum import MessageStatus
 from .globals import factory, account, gateway
@@ -50,15 +52,19 @@ def init(conn, data):
     defer.addCallback(lambda ret: dev.SerializeToString() if ret == RetNo.SUCCESS else None)
     return defer
 
+
 @gatewayServiceHandle
 def get_all_messages(conn, data):
     def callback(ret):
         if not isinstance(ret, list):
             return None
+        ids = []
         for msg in ret:
             connID = ConnectionMapping.get(conn.device_id, None)
             if connID is not None:
+                ids.append(msg['id'])
                 _push(connID, conn.device_id, msg)
+        gateway.callRemote('update_messages_status', conn.device_id, ids, MessageStatus.SENDING)
 
     defer = gateway.callRemote('get_messages_by_status', conn.device_id, MessageStatus.NOT_SEND)
     defer.addCallback(callback)
@@ -68,19 +74,23 @@ def get_all_messages(conn, data):
 @gatewayServiceHandle
 def push_ack(conn, data):
     try:
-        msg = PushMessage()
-        msg.ParseFromString(data)
+        ack = PushMessageAck()
+        ack.ParseFromString(data)
+        ids = json.loads(ack.ids)
     except Exception, e:
         logger.error(e)
         return None
-    logger.info('did:%s ack msg:%d received' % (conn.device_id, msg.id))
-    gateway.callRemote('update_msg_status', conn.device_id, msg.id, MessageStatus.RECEIVED)
+    logger.info('did:%s ack msgs:%s received' % (conn.device_id, ids))
+    gateway.callRemote('update_messages_status', conn.device_id, ids, MessageStatus.RECEIVED)
 
 
 @routerServiceHanlde
 def push(did, data):
+    logger.debug(did)
+    logger.debug(data)
     connID = ConnectionMapping.get(did, None)
     if connID is not None:
+        gateway.callRemote('update_messages_status', did, [data['id']], MessageStatus.SENDING)
         _push(connID, did, data)
 
 
@@ -93,4 +103,3 @@ def _push(connID, did, data):
     msg.body = data['body']
     logger.info('push msg:%d to did:%s' % (msg.id, did))
     factory.connmanager.pushObject(DataPackProtoc.CMD_PUAH, msg.SerializeToString(), [connID])
-    gateway.callRemote('update_msg_status', did, msg.id, MessageStatus.SENDING)

@@ -13,6 +13,7 @@ from distributed.root import BilateralFactory
 from .globals import root
 from .account_app import AccountApp
 from .account_dev import AccountDev
+from utils.logger import logger
 
 
 class AccountDispatch(resource.Resource):
@@ -26,6 +27,7 @@ class AccountDispatch(resource.Resource):
         elif path == 'account-dev':
             self.putChild('register', AccountDev('register'))
             self.putChild('subscribe', AccountDev('subscribe'))
+            self.putChild('device_ids', AccountDev('device_ids'))
             return resource.getChildForRequest(self, request)
         else:
             return ErrorPage(ErrNo.NO_RESOURCE)
