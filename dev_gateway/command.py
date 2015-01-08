@@ -51,6 +51,21 @@ def init(conn, data):
     return defer
 
 @gatewayServiceHandle
+def get_all_messages(conn, data):
+    def callback(ret):
+        if not isinstance(ret, list):
+            return None
+        for msg in ret:
+            connID = ConnectionMapping.get(conn.device_id, None)
+            if connID is not None:
+                _push(connID, conn.device_id, msg)
+
+    defer = gateway.callRemote('get_messages_by_status', conn.device_id, MessageStatus.NOT_SEND)
+    defer.addCallback(callback)
+    return defer
+
+
+@gatewayServiceHandle
 def push_ack(conn, data):
     try:
         msg = PushMessage()
@@ -64,14 +79,18 @@ def push_ack(conn, data):
 
 @routerServiceHanlde
 def push(did, data):
+    connID = ConnectionMapping.get(did, None)
+    if connID is not None:
+        _push(connID, did, data)
+
+
+def _push(connID, did, data):
     msg = PushMessage()
     msg.id = data['id']
     msg.sendno = data['sendno']
     msg.generator = data['generator']
     msg.title = data['title']
     msg.body = data['body']
-    connID = ConnectionMapping.get(did, None)
-    if connID is not None:
-        logger.info('push msg:%d to did:%s' % (msg.id, did))
-        factory.connmanager.pushObject(DataPackProtoc.CMD_PUAH, msg.SerializeToString(), [connID])
-        gateway.callRemote('update_msg_status', did, msg.id, MessageStatus.SENDING)
+    logger.info('push msg:%d to did:%s' % (msg.id, did))
+    factory.connmanager.pushObject(DataPackProtoc.CMD_PUAH, msg.SerializeToString(), [connID])
+    gateway.callRemote('update_msg_status', did, msg.id, MessageStatus.SENDING)

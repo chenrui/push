@@ -6,6 +6,7 @@ from .models import RouteTable
 from .globals import root
 from .errno import RetNo
 from message.enum import MessageStatus
+from utils.logger import logger
 
 
 def serviceHandle(target):
@@ -48,3 +49,8 @@ def push(dids, msg):
 @serviceHandle
 def update_msg_status(did, msgid, status):
     root.callNodeByName('message-server', 'update_msg_status', [did], msgid, status)
+
+@serviceHandle
+def get_messages_by_status(did, status):
+    defer = root.callNodeByName('message-server', 'getmsg_by_status', did, MessageStatus.NOT_SEND)
+    return defer

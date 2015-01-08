@@ -13,7 +13,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='header.proto',
   package='',
-  serialized_pb='\n\x0cheader.proto\"|\n\x0eProtocolHeader\x12&\n\x05\x63mdid\x18\x01 \x02(\x0e\x32\x17.ProtocolHeader.Command\x12\x0f\n\x07\x64\x61talen\x18\x02 \x02(\x05\"1\n\x07\x43ommand\x12\x0e\n\nINITIALIZE\x10\x01\x12\x08\n\x04PUSH\x10\x02\x12\x0c\n\x08PUSH_ACK\x10\x03')
+  serialized_pb='\n\x0cheader.proto\"\x8d\x01\n\x0eProtocolHeader\x12&\n\x05\x63mdid\x18\x01 \x02(\x0e\x32\x17.ProtocolHeader.Command\x12\x0f\n\x07\x64\x61talen\x18\x02 \x02(\x05\"B\n\x07\x43ommand\x12\x0e\n\nINITIALIZE\x10\x01\x12\x0f\n\x0bGET_ALL_MSG\x10\x02\x12\x08\n\x04PUSH\x10\x03\x12\x0c\n\x08PUSH_ACK\x10\x04')
 
 
 
@@ -28,18 +28,22 @@ _PROTOCOLHEADER_COMMAND = _descriptor.EnumDescriptor(
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='PUSH', index=1, number=2,
+      name='GET_ALL_MSG', index=1, number=2,
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='PUSH_ACK', index=2, number=3,
+      name='PUSH', index=2, number=3,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PUSH_ACK', index=3, number=4,
       options=None,
       type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=91,
-  serialized_end=140,
+  serialized_start=92,
+  serialized_end=158,
 )
 
 
@@ -74,8 +78,8 @@ _PROTOCOLHEADER = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=16,
-  serialized_end=140,
+  serialized_start=17,
+  serialized_end=158,
 )
 
 _PROTOCOLHEADER.fields_by_name['cmdid'].enum_type = _PROTOCOLHEADER_COMMAND

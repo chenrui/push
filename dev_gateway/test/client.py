@@ -36,6 +36,13 @@ def init_result(data):
     print dev
 
 
+def get_all():
+    header = ProtocolHeader()
+    header.cmdid = ProtocolHeader.GET_ALL_MSG
+    header.datalen = 0
+    return header.SerializeToString()
+
+
 def recevie_push(data):
     header = ProtocolHeader()
     msg = PushMessage()
@@ -44,7 +51,6 @@ def recevie_push(data):
     msg.ParseFromString(data[header.ByteSize():])
     print msg
     return msg
-
 
 
 def push_ack(msg) :
@@ -56,9 +62,13 @@ def push_ack(msg) :
 
 def main():
     client = connect(configure.DevServer)
+    # init
     client.send(init())
     data = client.recv(1024)
     init_result(data)
+    # get all msgs
+    client.send(get_all())
+    # receive
     data = client.recv(1024)
     data = recevie_push(data)
     client.send(push_ack(data))

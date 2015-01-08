@@ -6,6 +6,7 @@ from protobuf.header_pb2 import ProtocolHeader
 
 class DataPackProtoc():
     CMD_MAPPING = {ProtocolHeader.INITIALIZE: 'init',
+                   ProtocolHeader.GET_ALL_MSG: 'get_all_messages',
                    ProtocolHeader.PUSH_ACK: 'push_ack'}
     CMD_PUAH = ProtocolHeader.PUSH
 
