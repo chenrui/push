@@ -3,14 +3,13 @@
 
 import json
 import time
-import logging
 from twisted.web import resource
 from pony.orm import db_session
 from web.error import ErrorPage, ErrNo, SuccessPage
+from utils.logger import logger
 from .models import Message, Message_X_Device
 from .enum import MessageStatus as MsgStatus
 from .globals import remote
-from utils.logger import logger
 
 
 class MessageStorage(resource.Resource):
@@ -26,7 +25,7 @@ class MessageStorage(resource.Resource):
         msg = self.parse_nofification(data['notification'], data.get('options', None))
         # TODO: async
         self.send_to_router(data['audience'], msg)
-        return SuccessPage(msg.to_dict(exclude=('title', 'body', 'expires')))
+        return SuccessPage(msg.to_dict(exclude=('generator', 'title', 'body', 'expires')))
 
     def _sendto(self, dids, msg):
         with db_session:
@@ -84,7 +83,7 @@ class MessageStorage(resource.Resource):
         else:
             sendno = 0
             expires = current_time + 86400
-            generator = ' '
+            generator = ''
         with db_session:
             return Message(sendno=sendno, generator=generator, title=title, body=body, expires=expires)
 

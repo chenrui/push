@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 from protobuf.header_pb2 import ProtocolHeader
-from utils.logger import log
 
 
 class DataPackProtoc():
-    CMD_MAPPING = {ProtocolHeader.INITIALIZE: 'init',}
-    CMD_PUAH = ProtocolHeader.INITIALIZE
+    CMD_MAPPING = {ProtocolHeader.INITIALIZE: 'init',
+                   ProtocolHeader.PUSH_ACK: 'push_ack'}
+    CMD_PUAH = ProtocolHeader.PUSH
 
     def __init__(self):
         self.header = ProtocolHeader()

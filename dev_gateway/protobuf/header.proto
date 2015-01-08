@@ -2,6 +2,8 @@ message ProtocolHeader
 {
     enum Command {
         INITIALIZE = 1;
+        PUSH = 2;
+        PUSH_ACK = 3;
     }
 
     required Command cmdid = 1;

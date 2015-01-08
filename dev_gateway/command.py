@@ -5,6 +5,7 @@ from utils.logger import logger
 from protobuf.devinfo_pb2 import DeviceInfo
 from protobuf.message_pb2 import PushMessage
 from router.errno import RetNo
+from message.enum import MessageStatus
 from .globals import factory, account, gateway
 from .datapack import DataPackProtoc
 
@@ -49,14 +50,28 @@ def init(conn, data):
     defer.addCallback(lambda ret: dev.SerializeToString() if ret == RetNo.SUCCESS else None)
     return defer
 
+@gatewayServiceHandle
+def push_ack(conn, data):
+    try:
+        msg = PushMessage()
+        msg.ParseFromString(data)
+    except Exception, e:
+        logger.error(e)
+        return None
+    logger.info('did:%s ack msg:%d received' % (conn.device_id, msg.id))
+    gateway.callRemote('update_msg_status', conn.device_id, msg.id, MessageStatus.RECEIVED)
+
 
 @routerServiceHanlde
 def push(did, data):
     msg = PushMessage()
+    msg.id = data['id']
     msg.sendno = data['sendno']
-    msg.generator = data.get('generator', '')
+    msg.generator = data['generator']
     msg.title = data['title']
     msg.body = data['body']
     connID = ConnectionMapping.get(did, None)
     if connID is not None:
+        logger.info('push msg:%d to did:%s' % (msg.id, did))
         factory.connmanager.pushObject(DataPackProtoc.CMD_PUAH, msg.SerializeToString(), [connID])
+        gateway.callRemote('update_msg_status', did, msg.id, MessageStatus.SENDING)

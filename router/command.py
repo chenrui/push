@@ -38,11 +38,13 @@ def logout(gateway_name, did):
 @serviceHandle
 def push(dids, msg):
     # TODO: async
-    need_update = []
     for did in dids:
         with db_session:
             table = RouteTable.get(did=did, status=1)
             if table:
-                need_update.append(did)
                 root.callNodeByName(table.gateway_name, 'push', did, msg)
-    root.callNodeByName('message-server', 'update_msg_status', need_update, msg['id'], MessageStatus.SENDING)
+
+
+@serviceHandle
+def update_msg_status(did, msgid, status):
+    root.callNodeByName('message-server', 'update_msg_status', [did], msgid, status)

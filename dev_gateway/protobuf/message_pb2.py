@@ -13,7 +13,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='message.proto',
   package='',
-  serialized_pb='\n\rmessage.proto\"M\n\x0bPushMessage\x12\x0e\n\x06sendno\x18\x01 \x02(\x05\x12\x11\n\tgenerator\x18\x02 \x02(\t\x12\r\n\x05title\x18\x03 \x02(\t\x12\x0c\n\x04\x62ody\x18\x04 \x02(\t')
+  serialized_pb='\n\rmessage.proto\"Y\n\x0bPushMessage\x12\x11\n\tgenerator\x18\x01 \x02(\t\x12\r\n\x05title\x18\x02 \x02(\t\x12\x0c\n\x04\x62ody\x18\x03 \x02(\t\x12\x0e\n\x06sendno\x18\x04 \x02(\x05\x12\n\n\x02id\x18\x05 \x02(\x05')
 
 
 
@@ -26,30 +26,37 @@ _PUSHMESSAGE = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='sendno', full_name='PushMessage.sendno', index=0,
-      number=1, type=5, cpp_type=1, label=2,
-      has_default_value=False, default_value=0,
+      name='generator', full_name='PushMessage.generator', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='generator', full_name='PushMessage.generator', index=1,
+      name='title', full_name='PushMessage.title', index=1,
       number=2, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='title', full_name='PushMessage.title', index=2,
+      name='body', full_name='PushMessage.body', index=2,
       number=3, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='body', full_name='PushMessage.body', index=3,
-      number=4, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=unicode("", "utf-8"),
+      name='sendno', full_name='PushMessage.sendno', index=3,
+      number=4, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='id', full_name='PushMessage.id', index=4,
+      number=5, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -63,7 +70,7 @@ _PUSHMESSAGE = _descriptor.Descriptor(
   is_extendable=False,
   extension_ranges=[],
   serialized_start=17,
-  serialized_end=94,
+  serialized_end=106,
 )
 
 DESCRIPTOR.message_types_by_name['PushMessage'] = _PUSHMESSAGE

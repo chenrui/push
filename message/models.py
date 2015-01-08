@@ -7,7 +7,7 @@ from pony.orm import Required, Set, Optional
 
 class Message(db.Entity, BaseModel):
     sendno = Required(int, size=64)
-    generator = Required(str, 32)
+    generator = Optional(str, 32)
     title = Required(str, 128)
     body = Required(str, 4096)
     expires = Required(int, size=64)
