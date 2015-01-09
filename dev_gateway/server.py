@@ -3,10 +3,11 @@
 
 import importlib
 from twisted.internet import reactor
+from netconnect.protoc import LiberateFactory
+from distributed.remote import RemoteObject
 from utils import service
 from utils.logger import set_logger, logging
 from .datapack import DataPackProtoc
-from .globals import factory, gateway
 
 
 class DevServer(object):
@@ -14,9 +15,9 @@ class DevServer(object):
 
     def __init__(self, node_name, port, remote_addr):
         self.port = port
-        self.factory = factory
-        self.node_name = node_name
         self.remode_addr = remote_addr
+        self.factory = LiberateFactory.getInstance()
+        self.remote = RemoteObject.getInstance(node_name)
 
     def config_net_service(self):
         devservice = service.Service("devservice")
@@ -26,9 +27,8 @@ class DevServer(object):
 
     def config_gateway(self):
         devservice = service.Service("devservice-inner")
-        gateway.addServiceChannel(devservice)
-        gateway.setName(self.node_name)
-        gateway.connect(self.remode_addr)
+        self.remote.addServiceChannel(devservice)
+        self.remote.connect(self.remode_addr)
 
     def _do_start(self):
         set_logger(logging.DEBUG)

@@ -4,12 +4,18 @@
 import json
 import time
 from twisted.web import resource
+from twisted.internet import threads
 from pony.orm import db_session
+from distributed.remote import RemoteObject
+from account.client import AccountClient
 from web.error import ErrorPage, ErrNo, SuccessPage
 from utils.logger import logger
 from .models import Message, Message_X_Device
 from .enum import MessageStatus as MsgStatus
-from .globals import remote, account
+
+
+remote = RemoteObject.getInstance()
+account = AccountClient()
 
 
 class MessageStorage(resource.Resource):
@@ -23,8 +29,8 @@ class MessageStorage(resource.Resource):
             logger.info('audience %s not found' % data['audience'])
             return ErrorPage(ErrNo.NO_MATCHED_OBJ)
         msg = self.parse_nofification(data['notification'], data.get('options', None))
-        # TODO: async
-        self.send_to_router(data['audience'], msg)
+        # async: send msg to router
+        threads.deferToThread(self.send_to_router, data['audience'], msg)
         return SuccessPage(msg.to_dict(exclude=('generator', 'title', 'body', 'expires')))
 
     def _sendto(self, dids, msg):
@@ -41,7 +47,6 @@ class MessageStorage(resource.Resource):
             self._sendto(dids, msg)
             return
         elif audience == 'all':
-            # TODO: get all dids
             handle = account.getDevices
         elif 'tag' in audience:
             # TODO: get dids in this tag

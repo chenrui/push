@@ -3,11 +3,12 @@
 
 import json
 from twisted.web import resource
-from .globals import root
-from utils.logger import logger
+from distributed.root import PBRoot
 
 
 class AccountDev(resource.Resource):
+    root = PBRoot.getInstance()
+
     def __init__(self, method):
         resource.Resource.__init__(self)
         self.method = method
@@ -16,7 +17,7 @@ class AccountDev(resource.Resource):
         if self.method == 'device_ids':
             page = request.args['page'][0]
             page_size = request.args['page_size'][0]
-            defer = root.remote_callTarget('get_dids', int(page), int(page_size))
+            defer = self.root.remote_callTarget('get_dids', int(page), int(page_size))
             return defer
 
     def render_POST(self, request):
@@ -26,9 +27,9 @@ class AccountDev(resource.Resource):
 
     def handler(self, data):
         if self.method == 'register':
-            defer = root.remote_callTarget('register_dev', data['imei'], data['platform'], data['dev_type'])
+            defer = self.root.remote_callTarget('register_dev', data['imei'], data['platform'], data['dev_type'])
             return defer
         elif self.method == 'subscribe':
-            defer = root.remote_callTarget('subscribe', data['app_key'], data['did'])
+            defer = self.root.remote_callTarget('subscribe', data['app_key'], data['did'])
             return defer
 

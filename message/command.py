@@ -3,10 +3,13 @@
 
 import time
 from pony.orm import db_session
+from distributed.remote import RemoteObject
 from utils.logger import logger
-from .globals import remote
 from .models import Message_X_Device, Message
 from .enum import MessageStatus
+
+
+remote = RemoteObject.getInstance()
 
 
 def serviceHandle(target):

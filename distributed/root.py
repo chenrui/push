@@ -22,6 +22,14 @@ class BilateralFactory(pb.PBServerFactory):
 class PBRoot(pb.Root):
     '''PB 协议'''
 
+    instance = None
+
+    @classmethod
+    def getInstance(cls):
+        if cls.instance is None:
+            cls.instance = PBRoot()
+        return cls.instance
+
     def __init__(self, manager=NodesManager()):
         '''初始化根节点
         '''

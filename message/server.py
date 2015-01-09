@@ -4,12 +4,12 @@
 import importlib
 from twisted.web import vhost, resource
 from twisted.internet import reactor
+from distributed.remote import RemoteObject
 from web.request import DelaySite
 from utils.db import db
 from web.error import ErrorPage, ErrNo
 from utils import service
 from utils.logger import set_logger, logging
-from .globals import remote
 from .resource import MessageStorage, MessageStatus
 
 
@@ -43,9 +43,9 @@ class MessageServer(object):
         self.remote_addr = remote_addr
 
     def config_remote(self):
+        remote = RemoteObject.getInstance('message-server')
         msgservice = service.Service("msgservice")
         remote.addServiceChannel(msgservice)
-        remote.setName('message-server')
         importlib.import_module('message.command')
         remote.connect(self.remote_addr)
 

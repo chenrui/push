@@ -66,6 +66,13 @@ class LiberateProtocol(protocol.Protocol):
 class LiberateFactory(protocol.ServerFactory):
 
     protocol = LiberateProtocol
+    instance = None
+
+    @classmethod
+    def getInstance(cls):
+        if cls.instance is None:
+            cls.instance = LiberateFactory()
+        return cls.instance
 
     def __init__(self):
         self.service = None

@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from pony.orm import db_session
+from distributed.root import PBRoot
 from .models import RouteTable
-from .globals import root
 from .errno import RetNo
 from message.enum import MessageStatus
 from utils.logger import logger
+
+
+root = PBRoot.getInstance()
 
 
 def serviceHandle(target):

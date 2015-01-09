@@ -4,16 +4,14 @@
 import importlib
 from twisted.web import vhost, resource
 from twisted.internet import reactor
+from distributed.root import PBRoot, BilateralFactory
 from web.request import DelaySite
 from web.error import ErrNo, ErrorPage
 from utils import service
 from utils.db import db
 from utils.logger import set_logger, logging
-from distributed.root import BilateralFactory
-from .globals import root
 from .account_app import AccountApp
 from .account_dev import AccountDev
-from utils.logger import logger
 
 
 class AccountDispatch(resource.Resource):
@@ -47,6 +45,7 @@ class AccountServer(object):
         self.port = port
 
     def masterapp(self):
+        root = PBRoot.getInstance()
         rootservice = service.Service("accountservice")
         root.addServiceChannel(rootservice)
         root.doNodeConnect = _doChildConnect

@@ -3,14 +3,20 @@
 
 import json
 from utils.logger import logger
+from netconnect.protoc import LiberateFactory
+from distributed.remote import RemoteObject
+from account.client import AccountClient
 from protobuf.devinfo_pb2 import DeviceInfo
 from protobuf.message_pb2 import PushMessage
 from protobuf.message_ack_pb2 import PushMessageAck
 from router.errno import RetNo
 from message.enum import MessageStatus
-from .globals import factory, account, gateway
 from .datapack import DataPackProtoc
 
+
+factory = LiberateFactory.getInstance()
+gateway = RemoteObject.getInstance()
+account = AccountClient()
 ConnectionMapping = {}
 
 

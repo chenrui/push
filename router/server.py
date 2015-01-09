@@ -6,8 +6,7 @@ from twisted.internet import reactor
 from utils import service
 from utils.db import db
 from utils.logger import set_logger, logging
-from distributed.root import BilateralFactory
-from .globals import root
+from distributed.root import BilateralFactory, PBRoot
 
 
 class RouterServer(object):
@@ -19,19 +18,20 @@ class RouterServer(object):
 
     def __init__(self, port):
         self.port = port
+        self.root = PBRoot.getInstance()
 
     def masterapp(self):
         routerservice = service.Service("routerservice")
-        root.addServiceChannel(routerservice)
-        root.doNodeConnect = _doChildConnect
-        root.doNodeLostConnect = _doChildLostConnect
+        self.root.addServiceChannel(routerservice)
+        self.root.doNodeConnect = _doChildConnect
+        self.root.doNodeLostConnect = _doChildLostConnect
         importlib.import_module('router.command')
         self.db_mapping(True)
 
     def start(self):
         set_logger(logging.DEBUG)
         self.masterapp()
-        reactor.listenTCP(self.port, BilateralFactory(root))
+        reactor.listenTCP(self.port, BilateralFactory(self.root))
         reactor.run()
 
 
