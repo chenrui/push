@@ -12,13 +12,17 @@ from web.error import ErrorPage, ErrNo, SuccessPage
 from utils.logger import logger
 from .models import Message, Message_X_Device
 from .enum import MessageStatus as MsgStatus
+from .cache import MessageCache
 
 
-remote = RemoteObject.getInstance()
 account = AccountClient()
+msgCache = MessageCache.getInstance()
 
 
 class MessageStorage(resource.Resource):
+
+    def __init__(self):
+        resource.Resource.__init__(self)
 
     def render_POST(self, request):
         data = request.content.getvalue()
@@ -29,16 +33,21 @@ class MessageStorage(resource.Resource):
             logger.info('audience %s not found' % data['audience'])
             return ErrorPage(ErrNo.NO_MATCHED_OBJ)
         msg = self.parse_nofification(data['notification'], data.get('options', None))
-        # async: send msg to router
+        # send msg async
         threads.deferToThread(self.send_to_router, data['audience'], msg)
         return SuccessPage(msg.to_dict(exclude=('generator', 'title', 'body', 'expires')))
 
-    def _sendto(self, dids, msg):
+    def _sendto_back(self, dids, msg):
         with db_session:
             for did in dids:
                 Message_X_Device(did=did, msg_id=msg.id, status=MsgStatus.NOT_SEND)
         logger.info('send msg to router: dids %s, msg %s' % (dids, msg.to_dict()))
         remote.callRemote('push', dids, msg.to_dict(exclude=('expires',)))
+
+    def _sendto(self, dids, message):
+        msg = message.to_dict()
+        for did in dids:
+            msgCache.add(did, msg)
 
     def send_to_router(self, audience, msg):
         if 'device_id' in audience:

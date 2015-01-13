@@ -19,7 +19,7 @@ def connect(addr):
 def init():
     header = ProtocolHeader()
     dev = DeviceInfo()
-    dev.imei = '0000000001'
+    dev.imei = '0000000000'
     dev.platform = 'Android'
     dev.device_type = 'TCL xxx'
     dev.device_id = ''
@@ -37,13 +37,6 @@ def init_result(data):
     dev.ParseFromString(data[header.ByteSize():])
     print dev
     return dev
-
-
-def get_all():
-    header = ProtocolHeader()
-    header.cmdid = ProtocolHeader.GET_ALL_MSG
-    header.datalen = 0
-    return header.SerializeToString()
 
 
 def recevie_push(data):
@@ -71,8 +64,6 @@ def main():
     client.send(init())
     data = client.recv(1024)
     init_result(data)
-    # get all msgs
-    client.send(get_all())
     # receive
     while True:
         ids = []

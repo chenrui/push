@@ -3,6 +3,7 @@
 
 import importlib
 from twisted.web import vhost, resource
+from twisted.internet import task
 from twisted.internet import reactor
 from distributed.remote import RemoteObject
 from web.request import DelaySite
@@ -11,9 +12,12 @@ from web.error import ErrorPage, ErrNo
 from utils import service
 from utils.logger import set_logger, logging
 from .resource import MessageStorage, MessageStatus
+from .cache import MessageCache
 
 
 class Dispatch(resource.Resource):
+    def __init__(self):
+        resource.Resource.__init__(self)
 
     def getChild(self, path, request):
         if path == '':
@@ -54,10 +58,25 @@ class MessageServer(object):
         self.webSrv.addHost(self.addr, Dispatch())
         self.db_mapping(True)
 
+    def config_cache(self):
+        kwargs = {}
+        cache = MessageCache.getInstance(**kwargs)
+
+    def config_task(self):
+        from .tasks import check_acking_queue, check_dead_queue, send_to_router
+        t = task.LoopingCall(send_to_router)
+        t.start(1)
+        t = task.LoopingCall(check_dead_queue)
+        t.start(120)
+        t = task.LoopingCall(check_acking_queue)
+        t.start(30)
+
     def _do_start(self):
         set_logger(logging.DEBUG)
-        self.config_msg_server()
         self.config_remote()
+        self.config_cache()
+        self.config_task()
+        self.config_msg_server()
         reactor.listenTCP(self.port, DelaySite(self.webSrv))
 
     def start(self):

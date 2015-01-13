@@ -10,7 +10,6 @@ from protobuf.devinfo_pb2 import DeviceInfo
 from protobuf.message_pb2 import PushMessage
 from protobuf.message_ack_pb2 import PushMessageAck
 from router.errno import RetNo
-from message.enum import MessageStatus
 from .datapack import DataPackProtoc
 
 
@@ -60,24 +59,6 @@ def init(conn, data):
 
 
 @gatewayServiceHandle
-def get_all_messages(conn, data):
-    def callback(ret):
-        if not isinstance(ret, list):
-            return None
-        ids = []
-        for msg in ret:
-            connID = ConnectionMapping.get(conn.device_id, None)
-            if connID is not None:
-                ids.append(msg['id'])
-                _push(connID, conn.device_id, msg)
-        gateway.callRemote('update_messages_status', conn.device_id, ids, MessageStatus.SENDING)
-
-    defer = gateway.callRemote('get_messages_by_status', conn.device_id, MessageStatus.NOT_SEND)
-    defer.addCallback(callback)
-    return defer
-
-
-@gatewayServiceHandle
 def push_ack(conn, data):
     try:
         ack = PushMessageAck()
@@ -86,17 +67,14 @@ def push_ack(conn, data):
     except Exception, e:
         logger.error(e)
         return None
-    logger.info('did:%s ack msgs:%s received' % (conn.device_id, ids))
-    gateway.callRemote('update_messages_status', conn.device_id, ids, MessageStatus.RECEIVED)
+    logger.info('ack message ids:%s, did:%s' % (ids, conn.device_id))
+    gateway.callRemote('messages_ack', conn.device_id, ids)
 
 
 @routerServiceHanlde
 def push(did, data):
-    logger.debug(did)
-    logger.debug(data)
     connID = ConnectionMapping.get(did, None)
     if connID is not None:
-        gateway.callRemote('update_messages_status', did, [data['id']], MessageStatus.SENDING)
         _push(connID, did, data)
 
 
@@ -107,5 +85,5 @@ def _push(connID, did, data):
     msg.generator = data['generator']
     msg.title = data['title']
     msg.body = data['body']
-    logger.info('push msg:%d to did:%s' % (msg.id, did))
+    logger.info('push message(id:%d, did:%s)' % (msg.id, did))
     factory.connmanager.pushObject(DataPackProtoc.CMD_PUAH, msg.SerializeToString(), [connID])
