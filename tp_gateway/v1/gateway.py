@@ -35,6 +35,7 @@ class TPGateWay(resource.Resource):
         #if ret == ErrNo.UNAUTHORIZED:
         #    return ErrorPage(ret)
         # 2. send msg to message service
+        data['app_id'] = 1
         ret = self.msgClnt.storage(data)
         if isinstance(ret, dict):
             return SuccessPage(ret)

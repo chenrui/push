@@ -39,42 +39,46 @@ class MessageQueue(Redis):
         self.msgCache = msgCache
         Redis.__init__(self, **kwargs)
 
-    def add_to_sending(self, did, msg_id):
+    def _add_to_queue(self, qname, did, msg_id):
         item = {'did': did, 'msg_id': msg_id}
-        self.db.sadd('sending', json.dumps(item))
+        self.db.sadd(qname, json.dumps(item))
 
-    def get_from_sending(self):
-        rets = self.db.smembers('sending')
+    def _get_from_queue(self, qname):
+        rets = self.db.smembers(qname)
         rets = [json.loads(i) for i in rets]
         msg = []
         for item in rets:
             msg.append((item['did'], self.msgCache.get(item['did'], item['msg_id'])))
         return msg
 
-    def rem_from_sending(self, did, msg_id):
+    def _rem_from_queue(self, qname, did, msg_id):
         item = {'did': did, 'msg_id': msg_id}
         item = json.dumps(item)
-        if self.db.sismember('sending', item):
-            self.db.srem('sending', item)
+        ret = self.db.sismember(qname, item)
+        if ret:
+            self.db.srem(qname, item)
+        return ret
+
+    # sending queue
+    def add_to_sending(self, did, msg_id):
+        self._add_to_queue('sending', did, msg_id)
+
+    def get_from_sending(self):
+        return self._get_from_queue('sending')
+
+    def rem_from_sending(self, did, msg_id):
+        self._rem_from_queue('sending', did, msg_id)
 
     # acking queue
     def add_to_acking(self, did, msg_id):
-        item = {'did': did, 'msg_id': msg_id}
-        self.db.sadd('acking', json.dumps(item))
+        self._add_to_queue('acking', did, msg_id)
 
     def get_from_acking(self):
-        rets = self.db.smembers('acking')
-        rets = [json.loads(i) for i in rets]
-        msg = []
-        for item in rets:
-            msg.append((item['did'], self.msgCache.get(item['did'], item['msg_id'])))
-        return msg
+        return self._get_from_queue('acking')
 
     def rem_from_acking(self, did, msg_id):
-        item = {'did': did, 'msg_id': msg_id}
-        item = json.dumps(item)
-        if self.db.sismember('acking', item):
-            self.db.srem('acking', item)
+        ret = self._rem_from_queue('acking', did, msg_id)
+        if ret:
             self.add_to_dead(did, msg_id, MessageStatus.RECEIVED)
 
     # dead queue
@@ -89,4 +93,3 @@ class MessageQueue(Redis):
             self.msgCache.remove(item['did'], item['msg_id'])
             return item
         return None
-

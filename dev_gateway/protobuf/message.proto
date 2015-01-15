@@ -5,4 +5,5 @@ message PushMessage
     required string body = 3;
     required int32 sendno = 4;
     required int32 id = 5;
+    required int32 timestamp = 6;
 }

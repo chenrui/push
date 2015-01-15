@@ -13,7 +13,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='message.proto',
   package='',
-  serialized_pb='\n\rmessage.proto\"Y\n\x0bPushMessage\x12\x11\n\tgenerator\x18\x01 \x02(\t\x12\r\n\x05title\x18\x02 \x02(\t\x12\x0c\n\x04\x62ody\x18\x03 \x02(\t\x12\x0e\n\x06sendno\x18\x04 \x02(\x05\x12\n\n\x02id\x18\x05 \x02(\x05')
+  serialized_pb='\n\rmessage.proto\"l\n\x0bPushMessage\x12\x11\n\tgenerator\x18\x01 \x02(\t\x12\r\n\x05title\x18\x02 \x02(\t\x12\x0c\n\x04\x62ody\x18\x03 \x02(\t\x12\x0e\n\x06sendno\x18\x04 \x02(\x05\x12\n\n\x02id\x18\x05 \x02(\x05\x12\x11\n\ttimestamp\x18\x06 \x02(\x05')
 
 
 
@@ -60,6 +60,13 @@ _PUSHMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='timestamp', full_name='PushMessage.timestamp', index=5,
+      number=6, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -70,7 +77,7 @@ _PUSHMESSAGE = _descriptor.Descriptor(
   is_extendable=False,
   extension_ranges=[],
   serialized_start=17,
-  serialized_end=106,
+  serialized_end=125,
 )
 
 DESCRIPTOR.message_types_by_name['PushMessage'] = _PUSHMESSAGE

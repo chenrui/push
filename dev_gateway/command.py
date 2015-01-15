@@ -85,5 +85,6 @@ def _push(connID, did, data):
     msg.generator = data['generator']
     msg.title = data['title']
     msg.body = data['body']
+    msg.timestamp = data['timestamp']
     logger.info('push message(id:%d, did:%s)' % (msg.id, did))
     factory.connmanager.pushObject(DataPackProtoc.CMD_PUAH, msg.SerializeToString(), [connID])

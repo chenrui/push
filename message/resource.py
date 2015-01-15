@@ -6,12 +6,10 @@ import time
 from twisted.web import resource
 from twisted.internet import threads
 from pony.orm import db_session
-from distributed.remote import RemoteObject
 from account.client import AccountClient
 from web.error import ErrorPage, ErrNo, SuccessPage
 from utils.logger import logger
-from .models import Message, Message_X_Device
-from .enum import MessageStatus as MsgStatus
+from .models import Message
 from .cache import MessageCache
 
 
@@ -32,17 +30,10 @@ class MessageStorage(resource.Resource):
         if not self.parse_audience(data['audience']):
             logger.info('audience %s not found' % data['audience'])
             return ErrorPage(ErrNo.NO_MATCHED_OBJ)
-        msg = self.parse_nofification(data['notification'], data.get('options', None))
+        msg = self.parse_nofification(data['app_id'], data['notification'], data.get('options', None))
         # send msg async
         threads.deferToThread(self.send_to_router, data['audience'], msg)
-        return SuccessPage(msg.to_dict(exclude=('generator', 'title', 'body', 'expires')))
-
-    def _sendto_back(self, dids, msg):
-        with db_session:
-            for did in dids:
-                Message_X_Device(did=did, msg_id=msg.id, status=MsgStatus.NOT_SEND)
-        logger.info('send msg to router: dids %s, msg %s' % (dids, msg.to_dict()))
-        remote.callRemote('push', dids, msg.to_dict(exclude=('expires',)))
+        return SuccessPage(msg.to_dict(exclude=('app_id', 'generator', 'title', 'body', 'expires')))
 
     def _sendto(self, dids, message):
         msg = message.to_dict()
@@ -60,7 +51,7 @@ class MessageStorage(resource.Resource):
         elif 'tag' in audience:
             # TODO: get dids in this tag
             handle = None
-            pass
+            return
 
         page = 1
         page_size = 100
@@ -85,7 +76,7 @@ class MessageStorage(resource.Resource):
         else:
             return False
 
-    def parse_nofification(self, notification, options):
+    def parse_nofification(self, app_id, notification, options):
         current_time = int(time.time())
         title = notification['title']
         body = notification['body']
@@ -98,7 +89,8 @@ class MessageStorage(resource.Resource):
             expires = current_time + 86400
             generator = ''
         with db_session:
-            return Message(sendno=sendno, generator=generator, title=title, body=body, expires=expires)
+            return Message(sendno=sendno, app_id=app_id, generator=generator,
+                           title=title, body=body, expires=expires, timestamp=current_time)
 
 
 class MessageStatus(resource.Resource):

@@ -30,12 +30,14 @@ def send_to_router():
         msg = item[1]
         expires = int(msg.pop('expires'))
         msg['sendno'] = int(msg['sendno'])
+        msg['timestamp'] = int(msg['timestamp'])
         msg['id'] = int(msg['id'])
         if current_time > expires:
             logger.info('message(id:%d, did:%s) not send and expired, drop it' % (msg['id'], did))
             msgQueue.rem_from_sending(did, msg['id'])
             msgQueue.add_to_dead(did, msg['id'], MessageStatus.NOT_SEND)
         else:
+            del msg['app_id']
             defer = remote.callRemote('is_device_online', did)
             defer.addCallback(_send_callback, did, msg)
 
@@ -58,16 +60,9 @@ def check_acking_queue():
 
 
 def check_dead_queue():
-    total = []
+    # TODO: 统计
     while True:
         item = msgQueue.get_from_dead()
         if item is None:
             break
-        total.append(item)
-
-    # TODO: 统计
-    pass
-
-
-
 
