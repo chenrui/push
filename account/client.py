@@ -36,6 +36,14 @@ class AccountClient(object):
             return None
         return j
 
+    def addApplication(self, user_id, app_name):
+        payload = {'user_id': user_id, 'app_name': app_name}
+        r = requests.post(self.url + '/account-app/new', data=json.dumps(payload), headers=self.headers)
+        j = r.json()
+        if r.status_code != 200:
+            return j['Error_code']
+        return j
+
     def registDevice(self, imei, platform, device_type):
         payload = {'imei': imei, 'platform': platform, 'dev_type': device_type}
         r = requests.post(self.url + '/account-dev/register', data=json.dumps(payload), headers=self.headers)
