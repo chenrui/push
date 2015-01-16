@@ -12,6 +12,7 @@ from utils.db import db
 from utils.logger import set_logger, logging
 from .account_app import AccountApp
 from .account_dev import AccountDev
+from .account_profile import AccountProfile
 
 
 class AccountDispatch(resource.Resource):
@@ -21,6 +22,10 @@ class AccountDispatch(resource.Resource):
             self.putChild('checkmsg', AccountApp('checkmsg'))
             self.putChild('new', AccountApp('new'))
             self.putChild('delete', AccountApp('delete'))
+            return resource.getChildForRequest(self, request)
+        elif path == 'account-profile':
+            self.putChild('new', AccountProfile('new'))
+            self.putChild('find', AccountProfile('find'))
             return resource.getChildForRequest(self, request)
         elif path == 'account-dev':
             self.putChild('register', AccountDev('register'))

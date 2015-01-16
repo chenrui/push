@@ -20,6 +20,22 @@ class AccountClient(object):
             return ErrNo.UNAUTHORIZED
         return r.json()
 
+    def createProfile(self, email, pwd):
+        payload = {'email': email, 'password': pwd}
+        r = requests.post(self.url + '/account-profile/new', data=json.dumps(payload), headers=self.headers)
+        j = r.json()
+        if r.status_code != 200:
+            return j['Error_code']
+        return j
+
+    def findProfile(self, **kwargs):
+        r = requests.post(self.url + '/account-profile/find', data=json.dumps(kwargs), headers=self.headers)
+        j = r.json()
+        if r.status_code != 200:
+            logger.error(j)
+            return None
+        return j
+
     def registDevice(self, imei, platform, device_type):
         payload = {'imei': imei, 'platform': platform, 'dev_type': device_type}
         r = requests.post(self.url + '/account-dev/register', data=json.dumps(payload), headers=self.headers)

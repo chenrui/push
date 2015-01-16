@@ -22,6 +22,37 @@ def serviceHandle(target):
 
 
 ##########################
+#  account profile APIS
+##########################
+@serviceHandle
+def createProfile(email, password):
+    try:
+        with db_session:
+            user = Profile.get(email=email)
+            if user:
+                return ErrorPage(ErrNo.DUP_OPERATE)
+            user = Profile(email=email, password=password)
+            return SuccessPage(user.to_dict())
+    except Exception, e:
+        logger.error(e)
+        return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)
+
+
+@serviceHandle
+def findProfile(data):
+    with db_session:
+        if 'email' in data:
+            user = Profile.get(email=data['email'])
+        elif 'id' in data:
+            user = Profile.get(id=data['id'])
+        else:
+            user = None
+        if not user:
+            return ErrorPage(ErrNo.NO_RESOURCE)
+        return SuccessPage(user.to_dict())
+
+
+##########################
 #  account app APIS
 ##########################
 

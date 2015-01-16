@@ -6,7 +6,8 @@ from pony.orm import Required, Set, Optional
 
 
 class Profile(db.Entity, BaseModel):
-    name = Required(str, 16, unique=True)
+    email = Required(str, 32, unique=True)
+    password = Required(str, 2048)
     apps = Set('Application')
 
 
