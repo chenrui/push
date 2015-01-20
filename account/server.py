@@ -21,6 +21,7 @@ class AccountDispatch(resource.Resource):
         if path == 'account-app':
             self.putChild('checkmsg', AccountApp('checkmsg'))
             self.putChild('new', AccountApp('new'))
+            self.putChild('find', AccountApp('find'))
             self.putChild('delete', AccountApp('delete'))
             return resource.getChildForRequest(self, request)
         elif path == 'account-profile':

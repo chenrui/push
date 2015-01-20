@@ -44,6 +44,19 @@ class AccountClient(object):
             return j['Error_code']
         return j
 
+    def findApplication(self, user_id, app_key=None):
+        payload = {'user_id': user_id, 'app_key': app_key}
+        r = requests.post(self.url + '/account-app/find', data=json.dumps(payload), headers=self.headers)
+        j = r.json()
+        if r.status_code != 200:
+            logger.error(j)
+            return None
+        return j['apps']
+
+    def delApplication(self, user_id, app_key):
+        payload = {'user_id': user_id, 'app_key': app_key}
+        requests.post(self.url + '/account-app/delete', data=json.dumps(payload), headers=self.headers)
+
     def registDevice(self, imei, platform, device_type):
         payload = {'imei': imei, 'platform': platform, 'dev_type': device_type}
         r = requests.post(self.url + '/account-dev/register', data=json.dumps(payload), headers=self.headers)

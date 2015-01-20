@@ -15,6 +15,8 @@ class Application(db.Entity, BaseModel):
     app_name = Required(str, 12, unique=True)
     app_key = Required(str, 32, unique=True)
     mast_secret = Required(str, 32)
+    create_time = Required(int, size=64)
+    update_time = Required(int, size=64)
     owner = Required(Profile)
     devices = Set('Device')
 

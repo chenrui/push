@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+{% for record in exception_data %}
+{% for key, value in record.items() recursive %}
+<li>
+    <font color="blue">{{ key }}</font>
+    {% if value is mapping %}
+    <ul>{{ loop(value.items()) }}</ul>
+    {% elif value is string %}
+    : {{ value }}
+    {% elif value is sequence %}
+    <ul>
+        {% for v in value %}
+        <p>{{ v }}
+
+        <p>
+            {% endfor %}
+    </ul>
+    {% elif value is none %}
+    : null
+    {% else %}
+    : {{ value }}
+    {% endif %}
+</li>
+{% endfor %}
+{% endfor %}

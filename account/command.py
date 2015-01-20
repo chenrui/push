@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
 import json
 import hashlib
 import uuid
@@ -81,10 +82,12 @@ def createApp(userID, appName):
             app = Application.get(app_name=appName)
             if app:
                 return ErrorPage(ErrNo.DUP_OPERATE)
-            app_key = uuid.uuid3(uuid.NAMESPACE_DNS, appName).hex
+            current_time = int(time.time())
+            app_key = uuid.uuid3(uuid.NAMESPACE_DNS, str(appName)).hex
             mast_secret = uuid.uuid4().hex
             user = Profile[userID]
-            app = Application(app_name=appName, app_key=app_key, mast_secret=mast_secret, owner=user)
+            app = Application(app_name=appName, app_key=app_key, mast_secret=mast_secret,
+                              create_time=current_time, update_time=current_time, owner=user)
             return SuccessPage(app.to_dict())
     except Exception, e:
         logger.error(e)
@@ -92,10 +95,24 @@ def createApp(userID, appName):
 
 
 @serviceHandle
-def deleteApp(userID, appName):
+def findApp(userID, app_key):
+    with db_session:
+        apps = []
+        if not app_key:
+            user = Profile.get(id=userID)
+            apps = [app.to_dict() for app in user.apps]
+        else:
+            app = Application.get(app_key=app_key)
+            if app:
+                apps = [app.to_dict()]
+        return SuccessPage({'apps': apps})
+
+
+@serviceHandle
+def deleteApp(userID, app_key):
     try:
         with db_session:
-            app = Application.get(app_name=appName)
+            app = Application.get(app_key=app_key)
             if app and app.owner.id == userID:
                 app.delete()
         return SuccessPage()

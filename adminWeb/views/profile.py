@@ -12,7 +12,7 @@ from ..config import login_manager
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-app = Blueprint('profile', __name__)
+app = Blueprint('admin', __name__)
 
 
 @login_manager.unauthorized_handler
@@ -27,6 +27,8 @@ def load_user(userid):
 
 @app.route('/signup/', methods=['GET', 'POST'])
 def signup():
+    # Profile.create('rui.chen@tcl.com', u'Aa1233456')
+    # return redirect(url_for('.admin_index'))
     if request.method == 'POST' and request.form:
         email = request.form.get('email', '')
         password = request.form.get('password', '')
@@ -74,11 +76,3 @@ def signout():
 @login_required
 def admin_index():
     return render_template('index/index.html')
-
-
-@app.route('/test/', methods=['GET'])
-def test():
-    email = 'rui.chen@tcl.com'
-    password = 'Aa123456'
-    user = Profile.create(email, password)
-    print user.id

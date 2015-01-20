@@ -1,0 +1,34 @@
+{% extends "public/base.html" %}
+{% block body %}
+    <div class="right-column">
+		<div class="table-group">
+		<div class="table-responsive">
+		<table class="table">
+			<caption>应用列表</caption>
+			<thead>
+			<tr>
+			    <th style="width:12.5%">应用名称</th>
+				<th style="width:12.5%">应用标识（AppKey）</th>
+				<th style="width:12.5%">创建日期</th>
+				<th style="width:12.5%">操作</th>
+                <th style="width:12.5%">设置</th>
+			</tr>
+			</thead>
+            <tbody>
+                {% for app in apps %}
+                    <tr>
+                        <td> <a href="{{ url_for('.app_detail', app_key=app.app_key) }}">{{ app.name }} </a></td>
+                        <td> {{ app.app_key }} </td>
+                        <td> {{ app.create_time }} </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+		</table>
+		<div id="box" class="jappTable"></div>
+		</div>
+		</div>
+    </div>
+{% endblock %}

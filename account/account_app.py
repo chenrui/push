@@ -25,8 +25,11 @@ class AccountApp(resource.Resource):
         elif self.method == 'new':
             defer = self.root.remote_callTarget('createApp', data['user_id'], data['app_name'])
             return defer
+        elif self.method == 'find':
+            defer = self.root.remote_callTarget('findApp', data['user_id'], data['app_key'])
+            return defer
         elif self.method == 'delete':
-            defer = self.root.remote_callTarget('deleteApp', data['user_id'], data['app_name'])
+            defer = self.root.remote_callTarget('deleteApp', data['user_id'], data['app_key'])
             return defer
         else:
             return ErrorPage(ErrNo.NO_RESOURCE)

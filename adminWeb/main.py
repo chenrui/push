@@ -108,7 +108,7 @@ def configure_error_handlers(app):
         is commonly used when the server does not wish to reveal exactly why
         the request has been refused, or when no other response is applicable.
         """
-        return render_template("page_not_found.html"), 404
+        return render_template("error/page_not_found.html"), 404
 
     @app.errorhandler(405)
     def method_not_allowed_page(error):
@@ -118,11 +118,11 @@ def configure_error_handlers(app):
         Allow header containing a list of valid methods for the requested
         resource.
         """
-        return render_template("method_not_allowed.html"), 405
+        return render_template("error/method_not_allowed.html"), 405
 
     @app.errorhandler(500)
     def server_error_page(error):
-        return render_template("server_error.html"), 500
+        return render_template("error/server_error.html"), 500
 
 
 def configure_context_processors(app):
