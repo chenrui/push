@@ -30,10 +30,10 @@ class MessageStorage(resource.Resource):
         if not self.parse_audience(data['audience']):
             logger.info('audience %s not found' % data['audience'])
             return ErrorPage(ErrNo.NO_MATCHED_OBJ)
-        msg = self.parse_nofification(data['app_id'], data['notification'], data.get('options', None))
+        msg = self.parse_nofification(data['app_key'], data['notification'], data.get('options', None))
         # send msg async
         threads.deferToThread(self.send_to_router, data['audience'], msg)
-        return SuccessPage(msg.to_dict(exclude=('app_id', 'generator', 'title', 'body', 'expires')))
+        return SuccessPage(msg.to_dict(exclude=('app_key', 'generator', 'title', 'body', 'expires')))
 
     def _sendto(self, dids, message):
         msg = message.to_dict()
@@ -76,7 +76,7 @@ class MessageStorage(resource.Resource):
         else:
             return False
 
-    def parse_nofification(self, app_id, notification, options):
+    def parse_nofification(self, app_key, notification, options):
         current_time = int(time.time())
         title = notification['title']
         body = notification['body']
@@ -89,7 +89,7 @@ class MessageStorage(resource.Resource):
             expires = current_time + 86400
             generator = ''
         with db_session:
-            return Message(sendno=sendno, app_id=app_id, generator=generator,
+            return Message(sendno=sendno, app_key=app_key, generator=generator,
                            title=title, body=body, expires=expires, timestamp=current_time)
 
 

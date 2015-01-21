@@ -67,7 +67,7 @@ class MessageServer(object):
         t = task.LoopingCall(send_to_router)
         t.start(1)
         t = task.LoopingCall(check_dead_queue)
-        t.start(120)
+        t.start(60 * 10)
         t = task.LoopingCall(check_acking_queue)
         t.start(30)
 

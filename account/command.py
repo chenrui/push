@@ -69,7 +69,7 @@ def authorizeMessage(app_key, hash_code, verify_msg):
         verification_str = json.dumps(verify_msg) + mast_secret
         mobj.update(verification_str)
         code = mobj.hexdigest().upper()
-        return SuccessPage({'app_id': app.id}) if code == hash_code else ErrorPage(ErrNo.UNAUTHORIZED)
+        return SuccessPage() if code == hash_code else ErrorPage(ErrNo.UNAUTHORIZED)
     except Exception, e:
         logger.error(e)
         return ErrorPage(ErrNo.INTERNAL_SERVER_ERROR)

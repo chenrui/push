@@ -90,6 +90,9 @@ class MessageQueue(Redis):
         item = self.db.rpop('dead')
         if item:
             item = json.loads(item)
-            self.msgCache.remove(item['did'], item['msg_id'])
+            msg_id = item.pop('msg_id')
+            msg = self.msgCache.get(item['did'], msg_id)
+            self.msgCache.remove(item['did'], msg_id)
+            item['msg'] = msg
             return item
         return None

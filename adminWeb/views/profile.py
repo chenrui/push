@@ -27,8 +27,8 @@ def load_user(userid):
 
 @app.route('/signup/', methods=['GET', 'POST'])
 def signup():
-    # Profile.create('rui.chen@tcl.com', u'Aa1233456')
-    # return redirect(url_for('.admin_index'))
+    Profile.create('rui.chen@tcl.com', u'Aa1233456')
+    return redirect(url_for('.admin_index'))
     if request.method == 'POST' and request.form:
         email = request.form.get('email', '')
         password = request.form.get('password', '')

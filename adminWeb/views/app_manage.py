@@ -33,8 +33,8 @@ def app_detail(app_key):
 @app.route('/appmanager/new', methods=['GET', 'POST'])
 @login_required
 def new_app():
-    # current_user.add_app('testapp')
-    # return redirect(url_for('.show_app_list'))
+    current_user.add_app('testapp')
+    return redirect(url_for('.show_app_list'))
     if request.method == 'POST' and request.form:
         app_name = request.form.get('app_name', '')
         try:

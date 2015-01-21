@@ -18,7 +18,7 @@ class AccountClient(object):
         if r.status_code != 200:
             logger.error(r.json())
             return ErrNo.UNAUTHORIZED
-        return r.json()
+        return True
 
     def createProfile(self, email, pwd):
         payload = {'email': email, 'password': pwd}
