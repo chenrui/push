@@ -7,4 +7,3 @@ import logging
 
 pbroot = PBRoot()
 config = Config()
-logger = logging.getLogger('account')

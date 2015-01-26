@@ -8,7 +8,6 @@ from web.request import DelaySite
 from web.error import ErrNo, ErrorPage
 from account.client_async import AccountClient
 from message.client import MessageClient
-from utils.logger import set_logger, logging
 from . import config
 
 
@@ -48,6 +47,3 @@ class TPServer(object):
 
     def configure(self):
         pass
-
-    def config_logger(self):
-        set_logger(config.get('LOGLEVEL', logging.INFO))

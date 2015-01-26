@@ -2,24 +2,27 @@
 # -*- coding: utf-8 -*-
 
 from twisted.python import log
-import sys
 import logging
 
-# log.startLogging(sys.stdout)
 
-
-logger = logging.getLogger('service')
-
+logger = None
 
 def set_logger(level):
-    hdl = logging.FileHandler('push.log')
-    hdl.setFormatter(logging.Formatter(
-        '%(asctime)-15s %(levelname)s %(module)s %(process)d: %(message)s'))
-    hdl.setLevel(logging.INFO)
-    # logger.addHandler(hdl)
-    logger.setLevel(level)
-    hdl = logging.StreamHandler()
-    hdl.setFormatter(logging.Formatter(
-        '%(asctime)-15s %(levelname)s %(module)s %(process)d: %(message)s'))
-    hdl.setLevel(level)
-    logger.addHandler(hdl)
+    global logger
+    log = Logger(level)
+    log.start()
+    logger = log.get_logger()
+
+
+class Logger(log.PythonLoggingObserver):
+    def __init__(self, level):
+        self.logger = logging.getLogger('push-service')
+        self.logger.setLevel(level)
+        hdl = logging.StreamHandler()
+        hdl.setFormatter(logging.Formatter(
+            '%(asctime)-15s %(levelname)s %(module)s %(process)d: %(message)s'))
+        hdl.setLevel(level)
+        self.logger.addHandler(hdl)
+
+    def get_logger(self):
+        return self.logger

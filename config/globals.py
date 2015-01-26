@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+
 
 class BaseConfig(object):
     TP_GATEWAY_ADDR = ('127.0.0.1', 8888)
@@ -10,6 +12,7 @@ class BaseConfig(object):
     ROUTER_ADDR = ('127.0.0.1', 9998)
     MESSAGE_ADDR = ('127.0.0.1', 9997)
 
+    LOGLEVEL = logging.INFO
     DATABASE = {'ENGINE': 'mysql',
                 'HOST': '127.0.0.1',
                 'USER': 'root',

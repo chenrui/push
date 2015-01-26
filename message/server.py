@@ -9,7 +9,6 @@ from web.request import DelaySite
 from utils.db import db
 from web.error import ErrorPage, ErrNo
 from utils import service
-from utils.logger import set_logger, logging
 from .resource import MessageStorage, MessageStatus
 from .cache import MessageCache
 from . import config, remote
@@ -40,14 +39,10 @@ class MessageServer(object):
         return internet.TCPServer(port, DelaySite(Dispatch()), interface=addr)
 
     def configure(self):
-        self.config_logger()
         self.config_cache()
         self.config_database(True)
         self.config_remote()
         self.config_task()
-
-    def config_logger(self):
-        set_logger(config.get('LOGLEVEL', logging.INFO))
 
     def config_remote(self):
         msgservice = service.Service("MessageServer")

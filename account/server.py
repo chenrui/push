@@ -8,7 +8,6 @@ from web.request import DelaySite
 from web.error import ErrNo, ErrorPage
 from utils import service
 from utils.db import db
-from utils.logger import set_logger, logging
 from . import pbroot, config
 from .account_app import AccountApp
 from .account_dev import AccountDev
@@ -43,16 +42,12 @@ class AccountServer(object):
         config.from_object(config_obj)
 
     def configure(self):
-        self.config_logger()
         self.config_pbroot()
         self.config_database(True)
 
     def get_service(self):
         addr, port = config['ACCOUNT_ADDR']
         return internet.TCPServer(port, DelaySite(AccountDispatch()), interface=addr)
-
-    def config_logger(self):
-        set_logger(config.get('LOGLEVEL', logging.INFO))
 
     def config_pbroot(self):
         rootservice = service.Service('AccountServer')

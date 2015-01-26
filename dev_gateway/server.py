@@ -4,7 +4,6 @@
 import importlib
 from twisted.application import internet
 from utils import service
-from utils.logger import set_logger, logging
 from .datapack import DataPackProtoc
 from . import config, remote, factory
 
@@ -16,16 +15,12 @@ class DevServer(object):
         config.from_object(config_obj)
 
     def configure(self):
-        self.config_logger()
         self.config_net_service()
         self.config_remote()
 
     def get_service(self):
         addr, port = config['DEV_GATEWAY_ADDR']
         return internet.TCPServer(port, factory, interface=addr)
-
-    def config_logger(self):
-        set_logger(config.get('LOGLEVEL', logging.INFO))
 
     def config_net_service(self):
         devservice = service.Service("DevServer")

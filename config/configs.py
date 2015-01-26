@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
 from .globals import BaseConfig
 
 
 class ThirdPartConfig(BaseConfig):
-    LOGLEVEL = logging.DEBUG
+    pass
 
 
 class AccountConfig(BaseConfig):
@@ -17,12 +16,10 @@ class AccountConfig(BaseConfig):
                 'NAME': 'push'
                 }
     BINDDB = False
-    LOGLEVEL = logging.DEBUG
 
 
 class DevConfig(BaseConfig):
     NODENAME = 'dev_gateway_1'
-    LOGLEVEL = logging.DEBUG
 
 
 class MessageConfig(BaseConfig):
@@ -35,7 +32,6 @@ class MessageConfig(BaseConfig):
     BINDDB = False
     REDIS = {}
     NODENAME = 'message'
-    LOGLEVEL = logging.DEBUG
 
 
 class RouterConfig(BaseConfig):
@@ -46,5 +42,4 @@ class RouterConfig(BaseConfig):
                 'NAME': 'push'
                 }
     BINDDB = False
-    LOGLEVEL = logging.DEBUG
     MSGNODE = MessageConfig.NODENAME
