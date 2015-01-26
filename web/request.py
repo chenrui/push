@@ -32,7 +32,7 @@ class DelayRequest(Request):
             self._write(body.render(self))
             return
         data = json.dumps(body)
-        self.setHeader(b"content-type", b"application/json")
+        self.setHeader('content-type', 'application/json')
         self.setHeader('content-length', len(data))
         self.write(data)
         self.finish()

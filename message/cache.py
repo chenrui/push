@@ -26,7 +26,7 @@ class MessageCache(Redis):
         self.queue.add_to_sending(did, msg['id'])
 
     def get(self, did, msg_id):
-        key = '%s-%d' % (did, msg_id)
+        key = '%s-%d' % (did, int(msg_id))
         return self.db.hgetall(key)
 
     def remove(self, did, msg_id):
@@ -90,7 +90,7 @@ class MessageQueue(Redis):
         item = self.db.rpop('dead')
         if item:
             item = json.loads(item)
-            msg_id = item.pop('msg_id')
+            msg_id = int(item.pop('msg_id'))
             msg = self.msgCache.get(item['did'], msg_id)
             self.msgCache.remove(item['did'], msg_id)
             item['msg'] = msg

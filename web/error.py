@@ -62,3 +62,6 @@ class SuccessPage(resource.Resource):
         request.setResponseCode(200)
         request.setHeader(b"content-type", b"application/json")
         return self.msg
+
+    def __repr__(self):
+        return '<SuccessPage>: %s' % self.msg

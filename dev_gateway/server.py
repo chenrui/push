@@ -2,43 +2,39 @@
 # -*- coding: utf-8 -*-
 
 import importlib
-from twisted.internet import reactor
-from netconnect.protoc import LiberateFactory
-from distributed.remote import RemoteObject
+from twisted.application import internet
 from utils import service
 from utils.logger import set_logger, logging
 from .datapack import DataPackProtoc
+from . import config, remote, factory
 
 
 class DevServer(object):
     '''device gateway server'''
 
-    def __init__(self, node_name, port, remote_addr):
-        self.port = port
-        self.remode_addr = remote_addr
-        self.factory = LiberateFactory.getInstance()
-        self.remote = RemoteObject.getInstance(node_name)
+    def __init__(self, config_obj):
+        config.from_object(config_obj)
+
+    def configure(self):
+        self.config_logger()
+        self.config_net_service()
+        self.config_remote()
+
+    def get_service(self):
+        addr, port = config['DEV_GATEWAY_ADDR']
+        return internet.TCPServer(port, factory, interface=addr)
+
+    def config_logger(self):
+        set_logger(config.get('LOGLEVEL', logging.INFO))
 
     def config_net_service(self):
-        devservice = service.Service("devservice")
-        self.factory.addServiceChannel(devservice)
-        self.factory.setDataProtocl(DataPackProtoc())
+        devservice = service.Service("DevServer")
+        factory.addServiceChannel(devservice)
+        factory.setDataProtocl(DataPackProtoc())
+
+    def config_remote(self):
+        devservice = service.Service("Devservice-remote")
+        remote.addServiceChannel(devservice)
+        remote.setName(config['NODENAME'])
+        remote.connect(config['ROUTER_ADDR'])
         importlib.import_module('dev_gateway.command')
-
-    def config_gateway(self):
-        devservice = service.Service("devservice-inner")
-        self.remote.addServiceChannel(devservice)
-        self.remote.connect(self.remode_addr)
-
-    def _do_start(self):
-        set_logger(logging.DEBUG)
-        self.config_gateway()
-        self.config_net_service()
-        reactor.listenTCP(self.port, self.factory)
-
-    def start(self):
-        self._do_start()
-        reactor.run()
-
-    def stop(self):
-        pass

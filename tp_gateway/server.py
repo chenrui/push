@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import importlib
+from twisted.application import internet
 from twisted.web import resource
-from twisted.web import vhost
-from twisted.internet import reactor
 from web.request import DelaySite
 from web.error import ErrNo, ErrorPage
-from account.client import AccountClient
+from account.client_async import AccountClient
 from message.client import MessageClient
 from utils.logger import set_logger, logging
+from . import config
 
 
 class TPDispatch(resource.Resource):
@@ -37,25 +37,17 @@ class TPDispatch(resource.Resource):
 class TPServer(object):
     '''Third party gateway server'''
 
-    def __init__(self, addr, port):
-        self.webSrv = None
-        self.addr = addr
-        self.port = port
+    def __init__(self, config_obj):
+        config.from_object(config_obj)
 
-    def config_web_service(self):
-        authClnt = AccountClient()
-        msgClnt = MessageClient()
-        self.webSrv = vhost.NameVirtualHost()
-        self.webSrv.addHost(self.addr, TPDispatch(authClnt, msgClnt))
+    def get_service(self):
+        addr, port = config['TP_GATEWAY_ADDR']
+        authClnt = AccountClient(config['ACCOUNT_ADDR'])
+        msgClnt = MessageClient(config['MESSAGE_ADDR'])
+        return internet.TCPServer(port, DelaySite(TPDispatch(authClnt, msgClnt)), interface=addr)
 
-    def _do_start(self):
-        set_logger(logging.DEBUG)
-        self.config_web_service()
-        reactor.listenTCP(self.port, DelaySite(self.webSrv))
-
-    def start(self):
-        self._do_start()
-        reactor.run()
-
-    def stop(self):
+    def configure(self):
         pass
+
+    def config_logger(self):
+        set_logger(config.get('LOGLEVEL', logging.INFO))

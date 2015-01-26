@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import importlib
-from twisted.web import vhost, resource
-from twisted.internet import reactor
-from distributed.root import PBRoot, BilateralFactory
+from twisted.application import internet
+from twisted.web import resource
 from web.request import DelaySite
 from web.error import ErrNo, ErrorPage
 from utils import service
 from utils.db import db
 from utils.logger import set_logger, logging
+from . import pbroot, config
 from .account_app import AccountApp
 from .account_dev import AccountDev
 from .account_profile import AccountProfile
@@ -39,33 +39,35 @@ class AccountDispatch(resource.Resource):
 
 class AccountServer(object):
 
-    @classmethod
-    def db_mapping(self, create_tables=False):
-        importlib.import_module('account.models')
-        db.bind('mysql', host='127.0.0.1', user='root', passwd='root', db='push')
-        db.generate_mapping(create_tables=create_tables)
+    def __init__(self, config_obj):
+        config.from_object(config_obj)
 
-    def __init__(self, addr, port):
-        self.webSrv = None
-        self.addr = addr
-        self.port = port
+    def configure(self):
+        self.config_logger()
+        self.config_pbroot()
+        self.config_database(True)
 
-    def masterapp(self):
-        root = PBRoot.getInstance()
-        rootservice = service.Service("accountservice")
-        root.addServiceChannel(rootservice)
-        root.doNodeConnect = _doChildConnect
-        root.doNodeLostConnect = _doChildLostConnect
-        self.webSrv = vhost.NameVirtualHost()
-        self.webSrv.addHost(self.addr, AccountDispatch())
+    def get_service(self):
+        addr, port = config['ACCOUNT_ADDR']
+        return internet.TCPServer(port, DelaySite(AccountDispatch()), interface=addr)
+
+    def config_logger(self):
+        set_logger(config.get('LOGLEVEL', logging.INFO))
+
+    def config_pbroot(self):
+        rootservice = service.Service('AccountServer')
+        pbroot.addServiceChannel(rootservice)
+        pbroot.doNodeConnect = _doChildConnect
+        pbroot.doNodeLostConnect = _doChildLostConnect
         importlib.import_module('account.command')
-        self.db_mapping(True)
 
-    def start(self):
-        set_logger(logging.DEBUG)
-        # reactor.listenTCP(self.root_port, BilateralFactory(root))
-        reactor.listenTCP(self.port, DelaySite(self.webSrv))
-        reactor.run()
+    def config_database(self, create_tables=False):
+        importlib.import_module('account.models')
+        if config.get('BINDDB', True):
+            db_config = config['DATABASE']
+            db.bind(db_config['ENGINE'], host=db_config['HOST'], user=db_config['USER'],
+                    passwd=db_config['PASSWORD'], db=db_config['NAME'])
+            db.generate_mapping(create_tables=create_tables)
 
 
 def _doChildConnect(name, transport):

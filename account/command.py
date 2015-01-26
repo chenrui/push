@@ -8,17 +8,16 @@ import uuid
 from twisted.internet import reactor
 from distributed.remote import RemoteObject
 from pony.orm import db_session
-from distributed.root import PBRoot
 from web.error import ErrNo, ErrorPage, SuccessPage
 from utils import service
 from utils.logger import logger
 from utils.db import db
 from .models import Application, Profile, Device
+from . import pbroot
 
 
 def serviceHandle(target):
-    root = PBRoot.getInstance()
-    service = root.getServiceChannel()
+    service = pbroot.getServiceChannel()
     service.mapTarget(target)
 
 

@@ -4,11 +4,10 @@
 import json
 from twisted.web import resource
 from web.error import ErrNo, ErrorPage
-from distributed.root import PBRoot
+from . import pbroot
 
 
 class AccountApp(resource.Resource):
-    root = PBRoot.getInstance()
 
     def __init__(self, method):
         resource.Resource.__init__(self)
@@ -20,16 +19,16 @@ class AccountApp(resource.Resource):
 
     def handler(self, data):
         if self.method == 'checkmsg':
-            defer = self.root.remote_callTarget('authorizeMessage', data['app_key'], data['hash_code'], data['verify_msg'])
+            defer = pbroot.remote_callTarget('authorizeMessage', data['app_key'], data['hash_code'], data['verify_msg'])
             return defer
         elif self.method == 'new':
-            defer = self.root.remote_callTarget('createApp', data['user_id'], data['app_name'])
+            defer = pbroot.remote_callTarget('createApp', data['user_id'], data['app_name'])
             return defer
         elif self.method == 'find':
-            defer = self.root.remote_callTarget('findApp', data['user_id'], data['app_key'])
+            defer = pbroot.remote_callTarget('findApp', data['user_id'], data['app_key'])
             return defer
         elif self.method == 'delete':
-            defer = self.root.remote_callTarget('deleteApp', data['user_id'], data['app_key'])
+            defer = pbroot.remote_callTarget('deleteApp', data['user_id'], data['app_key'])
             return defer
         else:
             return ErrorPage(ErrNo.NO_RESOURCE)

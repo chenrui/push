@@ -19,7 +19,7 @@ def connect(addr):
 def init():
     header = ProtocolHeader()
     dev = DeviceInfo()
-    dev.imei = '0000000000'
+    dev.imei = '0000000001'
     dev.platform = 'Android'
     dev.device_type = 'TCL xxx'
     dev.device_id = ''

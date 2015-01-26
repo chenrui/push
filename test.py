@@ -9,7 +9,7 @@ import hashlib
 # 'audience': {'device_id': '9c01047c1bee310286fdad2c8b2c235b'},
 headers = {'content-type': 'application/json'}
 payloads = {'notification': {'title': 'test', 'body': 'this is a test'},
-            'audience': 'all',
+            'audience': {'device_id': '95c95fb5db8a37fc9de068cda332b174'},
             'app_key': '50ca489d9a16337e97d8fa9f484be5bd',
             }
 
@@ -19,5 +19,5 @@ mobj.update(verification_str)
 code = mobj.hexdigest().upper()
 payloads['verification_code'] = code
 
-r = requests.post('http://0.0.0.0:8888/v1/push', data=json.dumps(payloads), headers=headers)
+r = requests.post('http://127.0.0.1:8888/v1/push', data=json.dumps(payloads), headers=headers)
 print r.json()

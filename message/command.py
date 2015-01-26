@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
-from distributed.remote import RemoteObject
 from utils.logger import logger
-from .enum import MessageStatus
 from .cache import MessageCache
+from . import remote, config
 
 
-msgCache = MessageCache.getInstance()
+msgCache = MessageCache.getInstance(**config['REDIS'])
 msgQueue = msgCache.getQueue()
-remote = RemoteObject.getInstance()
 
 
 def serviceHandle(target):

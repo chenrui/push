@@ -8,8 +8,8 @@ from web.error import ErrNo
 
 
 class AccountClient(object):
-    def __init__(self):
-        self.url = 'http://0.0.0.0:9999'
+    def __init__(self, addr):
+        self.url = 'http://%s:%d' % (addr[0], addr[1])
         self.headers = {'content-type': 'application/json'}
 
     def verifyMsg(self, app_key, verification_code, msg):
@@ -56,14 +56,6 @@ class AccountClient(object):
     def delApplication(self, user_id, app_key):
         payload = {'user_id': user_id, 'app_key': app_key}
         requests.post(self.url + '/account-app/delete', data=json.dumps(payload), headers=self.headers)
-
-    def registDevice(self, imei, platform, device_type):
-        payload = {'imei': imei, 'platform': platform, 'dev_type': device_type}
-        r = requests.post(self.url + '/account-dev/register', data=json.dumps(payload), headers=self.headers)
-        if r.status_code != 200:
-            logger.error(r.json())
-            return ErrNo.INTERNAL_SERVER_ERROR
-        return r.json()
 
     def getDevices(self, page, page_size):
         r = requests.get(self.url + '/account-dev/device_ids?page=%d&page_size=%d' % (page, page_size))

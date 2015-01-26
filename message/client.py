@@ -1,19 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import requests
-import json
-from utils.logger import logger
+from web.client import httpRequest
 
 class MessageClient(object):
-    def __init__(self):
-        self.url = 'http://0.0.0.0:9997'
-        self.headers = {'content-type': 'application/json'}
+    def __init__(self, addr):
+        self.url = 'http://%s:%d' % (addr[0], addr[1])
+        self.headers = {'content-type': ['application/json']}
 
     def storage(self, data):
-        r = requests.post(self.url + '/storage', data=json.dumps(data), headers=self.headers)
-        if r.status_code != 200:
-            j = r.json()
-            logger.error(j)
-            return j['Error_code']
-        return r.json()
+        url = self.url + '/storage'
+        d = httpRequest(url, 'POST', data, self.headers)
+        return d

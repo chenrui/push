@@ -6,20 +6,19 @@ import time
 from twisted.web import resource
 from twisted.internet import threads
 from pony.orm import db_session
-from account.client import AccountClient
+from account.client_async import AccountClient
 from web.error import ErrorPage, ErrNo, SuccessPage
 from utils.logger import logger
 from .models import Message
 from .cache import MessageCache
-
-
-account = AccountClient()
-msgCache = MessageCache.getInstance()
+from . import config
 
 
 class MessageStorage(resource.Resource):
 
     def __init__(self):
+        self.account = AccountClient(config['ACCOUNT_ADDR'])
+        self.msgCache = MessageCache.getInstance(**config['REDIS'])
         resource.Resource.__init__(self)
 
     def render_POST(self, request):
@@ -38,7 +37,7 @@ class MessageStorage(resource.Resource):
     def _sendto(self, dids, message):
         msg = message.to_dict()
         for did in dids:
-            msgCache.add(did, msg)
+            self.msgCache.add(did, msg)
 
     def send_to_router(self, audience, msg):
         if 'device_id' in audience:
@@ -47,7 +46,7 @@ class MessageStorage(resource.Resource):
             self._sendto(dids, msg)
             return
         elif audience == 'all':
-            handle = account.getDevices
+            handle = self.account.getDevices
         elif 'tag' in audience:
             # TODO: get dids in this tag
             handle = None
@@ -55,12 +54,19 @@ class MessageStorage(resource.Resource):
 
         page = 1
         page_size = 100
-        while True:
-            dids = handle(page, page_size)
-            self._sendto(dids, msg)
-            if len(dids) < page_size:
-                break
-            page += 1
+        def callback(data, defer, page, page_size):
+            if 'Error_code' in data:
+                logger.error('get audience %s error(%d, %s)' % (audience,
+                                                                data['Error_code'],
+                                                                data['Error_msg']))
+            else:
+                dids = data['dids']
+                self._sendto(dids, msg)
+                if len(dids) == page_size:
+                    defer.addCallback(callback, defer, page + 1, page_size)
+
+        d = handle(page, page_size)
+        d.addCallback(callback, d, page, page_size)
 
     def parse_audience(self, audience):
         if audience == 'all':

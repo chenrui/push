@@ -6,10 +6,10 @@ from distributed.remote import RemoteObject
 from utils.logger import logger
 from .cache import MessageCache
 from .enum import MessageStatus
+from . import remote
 
 msgCache = MessageCache.getInstance()
 msgQueue = msgCache.getQueue()
-remote = RemoteObject.getInstance()
 
 
 def _send_callback(isOnline, did, msg):
@@ -51,7 +51,8 @@ def check_acking_queue():
         msg = item[1]
         expires = int(msg['expires'])
         if current_time > expires:
-            logger.info('message(id:%d, did:%s) expired, drop it' % (msg['id'], did))
+            logger.info('message(id:%d, did:%s) expired, drop it' % (int(msg['id']), did))
+            msgQueue.rem_from_acking(did, msg['id'])
             msgQueue.add_to_dead(did, msg['id'], MessageStatus.EXPIRED)
         else:
             # TODO: resend???
@@ -76,6 +77,7 @@ def check_dead_queue():
 
 def collect_by_app(collect, item):
     msg = item['msg']
+    print item
     app_key = msg['app_key']
     if app_key not in collect:
         data = {'droped': 0,

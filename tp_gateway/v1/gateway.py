@@ -4,9 +4,6 @@
 import json
 from twisted.web import resource
 from web.error import ErrNo, ErrorPage, SuccessPage
-from utils.logger import logger
-
-SUCCESS = 1
 
 
 class TPGateWay(resource.Resource):
@@ -29,21 +26,27 @@ class TPGateWay(resource.Resource):
         if not data:
             return ErrorPage(ErrNo.INVALID_PARAMETER)
 
-        logger.debug('receive %s', data)
         # 1. verify message
-        ret = self.verifyMsg(data)
-        if ret == ErrNo.UNAUTHORIZED:
-            return ErrorPage(ret)
+        d = self.verifyMsg(data)
         # 2. send msg to message service
-        ret = self.msgClnt.storage(data)
-        if isinstance(ret, dict):
-            return SuccessPage(ret)
-        else:
-            return ErrorPage(ret)
+        d.addCallback(self.verifyResponse, d, data)
+        return d
 
     def verifyMsg(self, data):
         msg = data['notification']
         return self.authClnt.verifyMsg(data['app_key'], data['verification_code'], msg)
+
+    def verifyResponse(self, ret, defer, data):
+        if 'Error_code' in ret:
+            return ErrorPage(ret['Error_code'])
+
+        d = self.msgClnt.storage(data)
+        def callback(ret, defer):
+            if 'Error_code' in ret:
+                return ErrorPage(ret['Error_code'])
+            return SuccessPage(ret)
+        d.addCallback(callback, d)
+        return d
 
     def getReqdata(self, request):
         try:

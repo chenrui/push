@@ -2,17 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from pony.orm import db_session
-from distributed.root import PBRoot
 from .models import RouteTable
 from .errno import RetNo
-from utils.logger import logger
-
-
-root = PBRoot.getInstance()
+from . import pbroot, config
 
 
 def serviceHandle(target):
-    service = root.getServiceChannel()
+    service = pbroot.getServiceChannel()
     service.mapTarget(target)
 
 
@@ -51,9 +47,9 @@ def push(did, msg):
     with db_session:
         table = RouteTable.get(did=did, status=1)
         if table:
-            root.callNodeByName(table.gateway_name, 'push', did, msg)
+            pbroot.callNodeByName(table.gateway_name, 'push', did, msg)
 
 
 @serviceHandle
 def messages_ack(did, msgids):
-    root.callNodeByName('message-server', 'messages_ack', did, msgids)
+    pbroot.callNodeByName(config['MSGNODE'], 'messages_ack', did, msgids)

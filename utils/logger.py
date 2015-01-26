@@ -16,7 +16,7 @@ def set_logger(level):
     hdl.setFormatter(logging.Formatter(
         '%(asctime)-15s %(levelname)s %(module)s %(process)d: %(message)s'))
     hdl.setLevel(logging.INFO)
-    logger.addHandler(hdl)
+    # logger.addHandler(hdl)
     logger.setLevel(level)
     hdl = logging.StreamHandler()
     hdl.setFormatter(logging.Formatter(

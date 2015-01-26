@@ -4,11 +4,10 @@
 import json
 from twisted.web import resource
 from web.error import ErrNo, ErrorPage
-from distributed.root import PBRoot
+from . import pbroot
 
 
 class AccountProfile(resource.Resource):
-    root = PBRoot.getInstance()
 
     def __init__(self, method):
         resource.Resource.__init__(self)
@@ -20,10 +19,10 @@ class AccountProfile(resource.Resource):
 
     def handler(self, data):
         if self.method == 'new':
-            defer = self.root.remote_callTarget('createProfile', data['email'], data['password'])
+            defer = pbroot.remote_callTarget('createProfile', data['email'], data['password'])
             return defer
         elif self.method == 'find':
-            defer = self.root.remote_callTarget('findProfile', data)
+            defer = pbroot.remote_callTarget('findProfile', data)
             return defer
         else:
             return ErrorPage(ErrNo.NO_RESOURCE)
